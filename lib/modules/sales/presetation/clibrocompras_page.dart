@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -18,6 +17,7 @@ class ClibrocomprasPage extends StatefulWidget {
 
 class _ClibrocomprasPage extends State<ClibrocomprasPage> {
 
+  String _filter = '';
 
   /* --- Datos generales --- */
   final _rifCtrl = TextEditingController(text: 'J-310203884');
@@ -45,6 +45,13 @@ class _ClibrocomprasPage extends State<ClibrocomprasPage> {
       'retenido': 0.0,
     },
   );
+
+  List<Map<String, dynamic>> get _filasFiltradas =>
+      _filas.where((e) =>
+      e['nFactura'].toString().toLowerCase().contains(_filter.toLowerCase()) ||
+          e['nombreProv'].toString().toLowerCase().contains(_filter.toLowerCase()))
+          .toList();
+
 
   /* --- Totales --- */
   double get _totalImporte =>
@@ -175,7 +182,7 @@ class _ClibrocomprasPage extends State<ClibrocomprasPage> {
     // Datos
     for (var r = 0; r < _filas.length; r++) {
       final f = _filas[r];
-      sheet.getRangeByIndex(r + 2, 1).setNumber(f['operacion']);
+      sheet.getRangeByIndex(r + 2, 1).setNumber((f['operacion'] as int).toDouble());
       sheet.getRangeByIndex(r + 2, 2).setText(DateFormat('dd/MM/yyyy').format(f['fechaEmision']));
       sheet.getRangeByIndex(r + 2, 3).setText(f['nFactura']);
       sheet.getRangeByIndex(r + 2, 4).setText(f['nControl']);
@@ -183,10 +190,11 @@ class _ClibrocomprasPage extends State<ClibrocomprasPage> {
       sheet.getRangeByIndex(r + 2, 6).setText(f['nCredito']);
       sheet.getRangeByIndex(r + 2, 7).setText(f['rifProv']);
       sheet.getRangeByIndex(r + 2, 8).setText(f['nombreProv']);
-      sheet.getRangeByIndex(r + 2, 9).setNumber(f['total']);
+      sheet.getRangeByIndex(r + 2, 9).setNumber((f['total']  as num).toDouble());
+
       sheet.getRangeByIndex(r + 2, 10).setNumber(f['exento']);
-      sheet.getRangeByIndex(r + 2, 11).setNumber(f['base']);
-      sheet.getRangeByIndex(r + 2, 12).setNumber(f['alicuota']);
+      sheet.getRangeByIndex(r + 2, 11).setNumber((f['base'] as num).toDouble());
+      sheet.getRangeByIndex(r + 2, 12).setNumber((f['alicuota'] as num).toDouble());
       sheet.getRangeByIndex(r + 2, 13).setNumber(f['iva']);
       sheet.getRangeByIndex(r + 2, 14).setNumber(f['retenido']);
     }
@@ -323,10 +331,28 @@ class _ClibrocomprasPage extends State<ClibrocomprasPage> {
               onTap: () => _selectFecha(context),
             ),
             const SizedBox(height: 20),
-            // Tabla horizontal
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+              child: TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Buscar factura o proveedor...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: (v) => setState(() => _filter = v),
+              ),
+            ),
+
+            // Tabla
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
+                headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
+                dataRowHeight: 60,                // interlineado mayor
+                columnSpacing: 20,
+                dividerThickness: 1,
                 columns: const [
                   DataColumn(label: Text('#Op')),
                   DataColumn(label: Text('Fecha Emisión')),
@@ -343,12 +369,11 @@ class _ClibrocomprasPage extends State<ClibrocomprasPage> {
                   DataColumn(label: Text('IVA Bs')),
                   DataColumn(label: Text('Retenido')),
                 ],
-                rows: _filas.map(
+                rows: _filasFiltradas.map(
                       (e) => DataRow(
                     cells: [
                       DataCell(Text(e['operacion'].toString())),
-                      DataCell(Text(
-                          DateFormat('dd/MM/yyyy').format(e['fechaEmision']))),
+                      DataCell(Text(DateFormat('dd/MM/yyyy').format(e['fechaEmision']))),
                       DataCell(Text(e['nFactura'])),
                       DataCell(Text(e['nControl'])),
                       DataCell(Text(e['nDebito'])),

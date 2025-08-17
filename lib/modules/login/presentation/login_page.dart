@@ -151,8 +151,8 @@ class _LoginPageState extends State<LoginPage> {
             end: Alignment.bottomRight,
 
             colors: [
+              AppColors.tealPop,
               AppColors.softGrey,
-              AppColors.electric,
             ],
           ),
         ),
@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Sandra Contab App',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.blueGrey[600],
+                        color: Colors.blueGrey[900],
                       ),
                     ),
                     const SizedBox(height: 32.0),
@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: ElevatedButton(
                               onPressed: _login,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.vividNavy.withOpacity(0.1),
+                                backgroundColor: AppColors.tealPop.withOpacity(0.2),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
@@ -359,7 +359,7 @@ class _LoginPageState extends State<LoginPage> {
     return ElevatedButton.icon(
       onPressed: _isLoading ? null : _authenticateWithBiometrics,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.vividNavy.withOpacity(0.1),
+        backgroundColor: AppColors.tealPop.withOpacity(0.1),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),

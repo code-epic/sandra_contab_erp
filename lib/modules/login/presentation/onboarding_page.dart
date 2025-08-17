@@ -31,8 +31,8 @@ class _OnboardingPage extends  State<OnboardingPage> {
             end: Alignment.bottomRight,
 
             colors: [
+              AppColors.tealPop,
               AppColors.softGrey,
-              AppColors.electric,
             ],
           ),
         ),
@@ -92,7 +92,7 @@ class _OnboardingPage extends  State<OnboardingPage> {
               child: const Text(
                   'Ya tengo una cuenta',
                   style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold, color: AppColors.navy),
                   ),
             ),

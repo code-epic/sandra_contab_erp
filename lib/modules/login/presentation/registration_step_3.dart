@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:image_picker/image_picker.dart';
 import 'package:sandra_contab_erp/core/constants/modules.dart';
+import 'package:sandra_contab_erp/core/models/api_service.dart' show ApiService;
+import 'package:sandra_contab_erp/core/models/upload_service.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:sandra_contab_erp/core/theme/modal_show.dart';
 
 // Nueva página para la captura de documentos (RegistrationStep3Page)
 class RegistrationStep3Page extends StatefulWidget {
@@ -17,55 +24,111 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
   File? _rifImage;
   File? _cedulaFrontImage;
   File? _cedulaBackImage;
+  File? _carnetContadorImage; // Nuevo
   bool _isLoading = false;
 
-  // Usa ImagePicker para seleccionar una imagen (cámara o galería)
-  // Nota: Esto es un ejemplo. En un entorno real, necesitarías permisos.
-  // final ImagePicker _picker = ImagePicker();
+  final UploadService _uploadService = UploadService();
+  final ImagePicker _picker = ImagePicker();
+  final ApiService _apiService = ApiService();
 
-  Future<void> _captureImage(Function(File) onImageCaptured) async {
-    // Simula la captura de una imagen.
-    // En un entorno real, usarías 'final XFile? image = await _picker.pickImage(source: ImageSource.camera);'
+  String cedula = "";
+  String nombreCompleto = "";
+  String tipoDocumento = "V"; // V de Venezolano
+
+  Future<void> _searchID() async {
+
+
+    try {
+      final result = await _apiService.ejecutar(
+        funcion: "MPPD_CCedulaSaime",
+        parametros: cedula,
+      );
+
+      if (result.containsKey('msj') && result['msj'] != null) {
+        ShowAlert(context, result['msj']);
+      } else {
+        print("No se encontró el mensaje.");
+      }
+
+      if (result.containsKey('Cuerpo') && result['Cuerpo'] != null) {
+        print("Cuerpo: ${result['Cuerpo']}");
+      } else {
+        print("No se encontró el cuerpo.");
+      }
+
+    } catch (e) {
+      print("❌ Error en ejecutar: $e");
+    }
+
+  }
+
+  Future<void> _captureImage(Function(File) onImageCaptured, String codigo) async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+    if (image == null) {
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 1));
 
-    // Simula la creación de un archivo para evitar errores de tipo nulo
-    final tempDir = Directory.systemTemp;
-    final tempFile = File('${tempDir.path}/temp_image_${Random().nextInt(1000)}.png');
-    // En un caso real, la imagen tendría contenido. Aquí es un placeholder.
-    await tempFile.writeAsBytes(List.generate(100, (i) => i));
+    String fileName = '${codigo}+${cedula}.jpg';
+    File imageFile = File(image.path);
+    String newPath = '${imageFile.parent.path}/$fileName';
+
+    await imageFile.rename(newPath);
 
     if (mounted) {
-      onImageCaptured(tempFile);
+      onImageCaptured(File(newPath));
     }
     setState(() {
       _isLoading = false;
     });
   }
 
-  Future<void> _uploadFiles() async {
-    setState(() {
-      _isLoading = true;
-    });
 
-    // Simula el envío de los archivos a un servicio.
-    // En un entorno real, aquí harías la llamada a la API.
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _uploadAllFiles() async {
+    if (!_isFormValid) return;
+    setState(() => _isLoading = true);
 
-    // Si el proceso de subida es exitoso, navega al siguiente paso.
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
+    try {
+      final files = <String, List<File>>{
+        "archivos": [
+          _rifImage!,
+          _cedulaFrontImage!,
+          _cedulaBackImage!,
+          _carnetContadorImage!,
+        ],
+      };
+
+      final fields = {
+        "identificador": cedula,
+        "usuario": "USUARIO_ID",
+      };
+
+      final stream = _uploadService.uploadFiles(files, fields);
+
+
+      stream.listen((event) async {
+        print("Progreso: ${(event.progress * 100).toStringAsFixed(2)}%");
+        if (event.state == "DONE") {
+          print("Archivos subidos correctamente.");
+        }
       });
-      context.push('/registration_step_4');
+    } catch (e) {
+      print("Error al subir archivos: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   bool get _isFormValid {
-    return _rifImage != null && _cedulaFrontImage != null && _cedulaBackImage != null;
+    return _rifImage != null &&
+        _cedulaFrontImage != null &&
+        _cedulaBackImage != null &&
+        _carnetContadorImage != null  &&
+        cedula.isNotEmpty && nombreCompleto.isNotEmpty;
   }
 
   @override
@@ -83,29 +146,105 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   textoRequisitos(
-                    'Por favor, suba una foto de su RIF y de su Cédula de Identidad.'
+                    'Por favor, todos los campos son requeridos.'
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Row(
+                      children: [
+                        // 1. DropdownButtonFormField para un estilo consistente
+                        Expanded(
+                          flex: 1, // Ocupa 1/4 del espacio (ajustable)
+                          child: DropdownButtonFormField<String>(
+                            value: tipoDocumento,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Tipo',
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'V', child: Text('V')),
+                              DropdownMenuItem(value: 'E', child: Text('E')),
+                            ],
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                tipoDocumento = newValue!;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16), // Espacio entre los widgets
+                        // 2. TextField mejorado
+                        Expanded(
+                          flex: 3, // Ocupa 3/4 del espacio (ajustable)
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                cedula = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: "Número de Cédula",
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  _searchID();
+                                  // print("Consultar datos de cédula: $cedula");
+                                },
+                                icon: const Icon(Icons.search),
+                                color: Theme.of(context).primaryColor, // Color del tema principal
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        nombreCompleto = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Nombre Completo",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+
                   const SizedBox(height: 32),
                   _buildDocumentCaptureWidget(
                     context,
                     title: 'RIF',
                     image: _rifImage,
-                    onTap: () => _captureImage((file) => setState(() => _rifImage = file)),
+                    onTap: () => _captureImage((file) => setState(() => _rifImage = file), 'RIF-'),
                   ),
                   const SizedBox(height: 24),
                   _buildDocumentCaptureWidget(
                     context,
                     title: 'Cédula (Parte Frontal)',
                     image: _cedulaFrontImage,
-                    onTap: () => _captureImage((file) => setState(() => _cedulaFrontImage = file)),
+                    onTap: () => _captureImage((file) => setState(() => _cedulaFrontImage = file), 'CDF-'),
                   ),
                   const SizedBox(height: 24),
                   _buildDocumentCaptureWidget(
                     context,
                     title: 'Cédula (Parte Posterior)',
                     image: _cedulaBackImage,
-                    onTap: () => _captureImage((file) => setState(() => _cedulaBackImage = file)),
+                    onTap: () => _captureImage((file) => setState(() => _cedulaBackImage = file), 'CEB-'),
                   ),
+                  const SizedBox(height: 24),
+                  _buildDocumentCaptureWidget(
+                    context,
+                    title: "Carnet de Contador",
+                    image: _carnetContadorImage,
+                    onTap: () => _captureImage((file) => setState(() => _carnetContadorImage = file), 'CAR-'),
+                  ),
+
                 ],
               ),
             ),
@@ -135,7 +274,7 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: _isFormValid ? _uploadFiles : null,
+                    onPressed: _isFormValid ? _uploadAllFiles : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _isFormValid ? AppColors.steelBlue : Colors.grey,
                       foregroundColor: Colors.white,

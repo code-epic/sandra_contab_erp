@@ -13,11 +13,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: AppBar(
         foregroundColor: AppColors.softGrey,
         title: const Text('Gestión Contable'),
         automaticallyImplyLeading: false, // Oculta la flecha de retroceso
-        backgroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.tealPop,
         actions: [
           IconButton(
             color:AppColors.paleBlue,
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
 
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.tealPop,
         onPressed: () {
           context.push('/clregistro');
         },
