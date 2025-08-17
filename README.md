@@ -1,4 +1,4 @@
-### Transformación Digital Venezolana
+### Transformación Contable Digital Venezolana
 
 Cuando el miedo se transforma en visión
 
@@ -17,8 +17,5 @@ Imagina qué:
 - La inteligencia de datos convierte números en estrategias
     
 - El cumplimiento laboral y contable deja de ser una pesadilla para convertirse en una ventaja competitiva
-    
-
-  dd
 
 Pero sobre todo, imagina esto: mientras otros reaccionan al caos, tú estás construyendo el futuro
