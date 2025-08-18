@@ -45,12 +45,12 @@ class _OnboardingPage extends  State<OnboardingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 160,
-              width: 160,
+              height: 140,
+              width: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
-                  image: AssetImage(assetPath('sandra.png')),
+                  image: AssetImage(assetPath('job.png')),
                   fit: BoxFit.cover,
                 ),
                 border: Border.all(

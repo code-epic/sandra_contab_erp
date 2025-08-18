@@ -41,7 +41,7 @@ import 'package:sandra_contab_erp/modules/security/auth_service.dart';
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     image: DecorationImage(
-                                      image: AssetImage(assetPath('sandra.png')),
+                                      image: AssetImage(assetPath('job.png')),
                                       fit: BoxFit.cover,
                                     ),
                                     border: Border.all(

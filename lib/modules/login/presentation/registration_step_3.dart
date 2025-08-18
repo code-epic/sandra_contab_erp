@@ -11,8 +11,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:sandra_contab_erp/core/theme/modal_show.dart';
+import 'package:sandra_contab_erp/modules/login/presentation/registration_step_4.dart';
 
-// Nueva página para la captura de documentos (RegistrationStep3Page)
 class RegistrationStep3Page extends StatefulWidget {
   const RegistrationStep3Page({super.key});
 
@@ -24,8 +24,10 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
   File? _rifImage;
   File? _cedulaFrontImage;
   File? _cedulaBackImage;
-  File? _carnetContadorImage; // Nuevo
+  File? _carnetContadorImage;
   bool _isLoading = false;
+  TextEditingController _nombreCompletoController = TextEditingController();
+  TextEditingController _cedulaController = TextEditingController();
 
   final UploadService _uploadService = UploadService();
   final ImagePicker _picker = ImagePicker();
@@ -36,30 +38,41 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
   String tipoDocumento = "V"; // V de Venezolano
 
   Future<void> _searchID() async {
+    setState(() {
+      nombreCompleto = "";
+      _nombreCompletoController.text = "";
+    });
+    cedula = _cedulaController.text.trim();
 
-
+    if (cedula.isEmpty) {
+      AlertService.ShowAlert(context, "Por favor ingrese una cédula válida.");
+      return;
+    }
     try {
       final result = await _apiService.ejecutar(
         funcion: "MPPD_CCedulaSaime",
-        parametros: cedula,
+        parametros: '${cedula}',
       );
 
       if (result.containsKey('msj') && result['msj'] != null) {
-        ShowAlert(context, result['msj']);
-      } else {
-        print("No se encontró el mensaje.");
+        AlertService.ShowAlert(context, result['msj']);
       }
 
       if (result.containsKey('Cuerpo') && result['Cuerpo'] != null) {
-        print("Cuerpo: ${result['Cuerpo']}");
+        AlertService.ShowAlert(context, "Cargando, por favor espere...", type: 2);
+        setState(() {
+          for (var item in result['Cuerpo']) {
+            nombreCompleto = "${item['apellido1']} ${item['apellido2']} ${item['nombre1']} ${item['nombre2']}";
+            _nombreCompletoController.text = nombreCompleto;
+          }
+          AlertService.HideAlert(context);
+        });
       } else {
         print("No se encontró el cuerpo.");
       }
-
     } catch (e) {
       print("❌ Error en ejecutar: $e");
     }
-
   }
 
   Future<void> _captureImage(Function(File) onImageCaptured, String codigo) async {
@@ -71,7 +84,6 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     setState(() {
       _isLoading = true;
     });
-
 
     String fileName = '${codigo}+${cedula}.jpg';
     File imageFile = File(image.path);
@@ -87,8 +99,8 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     });
   }
 
-
   Future<void> _uploadAllFiles() async {
+    AlertService.ShowAlert(context, "Subiendo archivos, por favor espere...", type: 2);
     if (!_isFormValid) return;
     setState(() => _isLoading = true);
 
@@ -109,11 +121,17 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
 
       final stream = _uploadService.uploadFiles(files, fields);
 
-
       stream.listen((event) async {
         print("Progreso: ${(event.progress * 100).toStringAsFixed(2)}%");
         if (event.state == "DONE") {
           print("Archivos subidos correctamente.");
+          AlertService.HideAlert(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegistrationStep4Page(cedula: cedula),
+            ),
+          );
         }
       });
     } catch (e) {
@@ -127,8 +145,9 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     return _rifImage != null &&
         _cedulaFrontImage != null &&
         _cedulaBackImage != null &&
-        _carnetContadorImage != null  &&
-        cedula.isNotEmpty && nombreCompleto.isNotEmpty;
+        _carnetContadorImage != null &&
+        cedula.isNotEmpty &&
+        nombreCompleto.isNotEmpty;
   }
 
   @override
@@ -136,172 +155,172 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     return Scaffold(
       backgroundColor: AppColors.softGrey,
       body: Container(
-
         child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only( left: 24, top: 94, right:12, bottom: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  textoRequisitos(
-                    'Por favor, todos los campos son requeridos.'
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Row(
-                      children: [
-                        // 1. DropdownButtonFormField para un estilo consistente
-                        Expanded(
-                          flex: 1, // Ocupa 1/4 del espacio (ajustable)
-                          child: DropdownButtonFormField<String>(
-                            value: tipoDocumento,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Tipo',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'V', child: Text('V')),
-                              DropdownMenuItem(value: 'E', child: Text('E')),
-                            ],
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                tipoDocumento = newValue!;
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16), // Espacio entre los widgets
-                        // 2. TextField mejorado
-                        Expanded(
-                          flex: 3, // Ocupa 3/4 del espacio (ajustable)
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                cedula = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Número de Cédula",
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  _searchID();
-                                  // print("Consultar datos de cédula: $cedula");
-                                },
-                                icon: const Icon(Icons.search),
-                                color: Theme.of(context).primaryColor, // Color del tema principal
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(left: 24, top: 64, right: 12, bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    textoRequisitos(
+                      'Por favor, todos los campos son requeridos.',
+                    ),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButtonFormField<String>(
+                              value: tipoDocumento,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Tipo',
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                               ),
+                              items: const [
+                                DropdownMenuItem(value: 'V', child: Text('V')),
+                                DropdownMenuItem(value: 'E', child: Text('E')),
+                              ],
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  tipoDocumento = newValue!;
+                                });
+                              },
                             ),
                           ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              controller: _cedulaController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: "Número de Cédula",
+                                border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    _searchID();
+                                  },
+                                  icon: const Icon(Icons.search),
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              textInputAction: TextInputAction.done,
+                              onEditingComplete: () {
+                                _searchID();
+                              },
+                            ),
+
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      enabled: false,
+                      controller: _nombreCompletoController,
+                      decoration: InputDecoration(
+                        labelText: "Nombre Completo",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    const SizedBox(height: 32),
+                    AnimatedOpacity(
+                      opacity: nombreCompleto.isNotEmpty ? 1.0 : 0.0,
+                      duration: Duration(seconds: 1),
+                      child: Column(
+                        children: [
+                          _buildDocumentCaptureWidget(
+                            context,
+                            title: 'RIF',
+                            image: _rifImage,
+                            onTap: () => _captureImage((file) => setState(() => _rifImage = file), 'RIF-'),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildDocumentCaptureWidget(
+                            context,
+                            title: 'Cédula (Parte Frontal)',
+                            image: _cedulaFrontImage,
+                            onTap: () => _captureImage((file) => setState(() => _cedulaFrontImage = file), 'CDF-'),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildDocumentCaptureWidget(
+                            context,
+                            title: 'Cédula (Parte Posterior)',
+                            image: _cedulaBackImage,
+                            onTap: () => _captureImage((file) => setState(() => _cedulaBackImage = file), 'CEB-'),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildDocumentCaptureWidget(
+                            context,
+                            title: "Carnet de Contador",
+                            image: _carnetContadorImage,
+                            onTap: () => _captureImage((file) => setState(() => _carnetContadorImage = file), 'CAR-'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.pop('/registration_step_2'),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.steelBlue),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
-                      ],
+                      ),
+                      icon: const Icon(Icons.arrow_back_ios, size: 16, color: AppColors.steelBlue),
+                      label: const Text(
+                        'Ir atrás',
+                        style: TextStyle(color: AppColors.steelBlue),
+                      ),
                     ),
                   ),
-
-                  SizedBox(height: 16),
-                  TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        nombreCompleto = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Nombre Completo",
-                      border: OutlineInputBorder(),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _isFormValid ? _uploadAllFiles : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isFormValid ? AppColors.steelBlue : Colors.grey,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      icon: _isLoading
+                          ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                          : const Icon(Icons.arrow_forward_ios, size: 16),
+                      label: Text(_isLoading ? 'Subiendo...' : 'Siguiente'),
                     ),
                   ),
-                  SizedBox(height: 16),
-
-
-                  const SizedBox(height: 32),
-                  _buildDocumentCaptureWidget(
-                    context,
-                    title: 'RIF',
-                    image: _rifImage,
-                    onTap: () => _captureImage((file) => setState(() => _rifImage = file), 'RIF-'),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildDocumentCaptureWidget(
-                    context,
-                    title: 'Cédula (Parte Frontal)',
-                    image: _cedulaFrontImage,
-                    onTap: () => _captureImage((file) => setState(() => _cedulaFrontImage = file), 'CDF-'),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildDocumentCaptureWidget(
-                    context,
-                    title: 'Cédula (Parte Posterior)',
-                    image: _cedulaBackImage,
-                    onTap: () => _captureImage((file) => setState(() => _cedulaBackImage = file), 'CEB-'),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildDocumentCaptureWidget(
-                    context,
-                    title: "Carnet de Contador",
-                    image: _carnetContadorImage,
-                    onTap: () => _captureImage((file) => setState(() => _carnetContadorImage = file), 'CAR-'),
-                  ),
-
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => context.pop('/registration_step_2'),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.steelBlue),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                    icon: const Icon(Icons.arrow_back_ios, size: 16, color: AppColors.steelBlue),
-                    label: const Text(
-                      'Ir atrás',
-                      style: TextStyle(color: AppColors.steelBlue),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isFormValid ? _uploadAllFiles : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isFormValid ? AppColors.steelBlue : Colors.grey,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                    icon: _isLoading
-                        ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                        : const Icon(Icons.arrow_forward_ios, size: 16),
-                    label: Text(_isLoading ? 'Subiendo...' : 'Siguiente'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -348,7 +367,6 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
                 fit: BoxFit.cover,
                 width: 80,
                 height: 80,
-                // Aquí se simula la carga de la imagen real.
                 errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
               ),
             ),

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:sandra_contab_erp/core/constants/modules.dart';
+import 'package:crypto/crypto.dart';
+
 
 class ApiService {
   http.Client createInsecureHttpClient() {
@@ -19,6 +21,7 @@ class ApiService {
       "funcion": funcion,
       "parametros": parametros.isNotEmpty ? parametros : null,
     };
+
     if (valores != null && valores.isNotEmpty) {
       requestBody["valores"] = jsonEncode(valores);
     }
@@ -26,12 +29,16 @@ class ApiService {
     final url = Uri.parse("${IsUrl}crud:development");
     try {
       final client = createInsecureHttpClient();
+      final headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $IsToken",
+      };
       final response = await client.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: headers,
         body: jsonEncode(requestBody),
       );
-      // Manejo de errores según el código de estado HTTP
+
       switch (response.statusCode) {
         case 200:
         // Éxito
@@ -64,5 +71,11 @@ class ApiService {
     } catch (e) {
       throw Exception('Error al ejecutar la solicitud: $e');
     }
+  }
+
+  String ConvertToSHA256(String input) {
+    var bytes = utf8.encode(input); // Convierte la clave en una lista de bytes
+    var digest = sha256.convert(bytes); // Calcula el hash SHA-256
+    return digest.toString(); // Retorna el hash como un String
   }
 }

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sandra_contab_erp"
-        minSdkVersion(21) // <--- Corregido
+        minSdkVersion(24) // <--- Corregido
         targetSdkVersion(34) // <--- Corregido
         versionCode = 1
         versionName = "1.0.0"
