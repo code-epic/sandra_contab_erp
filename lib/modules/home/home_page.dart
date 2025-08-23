@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'package:sandra_contab_erp/core/theme/app_carousel.dart';
 
+import '../security/auth_service.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -10,6 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final AuthService _authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +28,8 @@ class _HomePageState extends State<HomePage> {
             color:AppColors.paleBlue,
             icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pop(context, '/login');
+              _authService.logout();
+              context.go('/login');
             },
           ),
         ],

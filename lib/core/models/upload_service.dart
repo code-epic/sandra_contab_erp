@@ -36,7 +36,7 @@ class UploadService {
     () async {
       final client = createInsecureHttpClient();
       try {
-        final uri = Uri.parse("${baseUrl}subirarchivos");
+        final uri = Uri.parse("${baseUrl}v1/api/subirarchivos");
         final request = http.MultipartRequest("POST", uri);
         request.headers["Authorization"] = "Bearer $token";
 
@@ -51,6 +51,7 @@ class UploadService {
           }
         }
 
+        print(files);
         final totalBytes = files.values.expand((f) => f).fold<int>(0, (p, f) => p + f.lengthSync());
         int sentBytes = 0;
 
@@ -76,7 +77,8 @@ class UploadService {
             state: "DONE",
           ));
         } else {
-          controller.addError("Error al subir archivos: ${streamedResponse.statusCode}");
+          controller.addError("Error al subir archivos: ${streamedResponse.request}");
+
         }
         controller.close();
         },onError: (e) {

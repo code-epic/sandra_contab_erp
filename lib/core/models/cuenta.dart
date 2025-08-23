@@ -18,11 +18,6 @@ class Cuenta {
 
 
 
-class AppColors {
-  static const Color softGrey = Color(0xFFE5E5E5);
-  static const Color vividNavy = Color(0xFF191970);
-  static const Color paleBlue = Color(0xFFADD8E6);
-}
 
 
 class XHeader extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'package:sandra_contab_erp/providers/scan_provider.dart';
 import 'package:crop_image/crop_image.dart';
-import 'package:image/image.dart' as img;
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
@@ -16,30 +16,54 @@ class PreviewEditScreen extends StatefulWidget {
 
 class _PreviewEditScreenState extends State<PreviewEditScreen> {
   final _cropController = CropController();
+  bool _isLoading = false; // Variable de estado para controlar el indicador de carga
 
   Future<void> _saveCroppedImage() async {
+    // Activa el estado de carga
+    setState(() {
+      _isLoading = true;
+    });
+
     final scanProvider = Provider.of<ScanProvider>(context, listen: false);
     final ui.Image? croppedUiImage = await _cropController.croppedBitmap(
       quality: FilterQuality.high,
     );
 
     if (croppedUiImage != null) {
-      // Ya que croppedUiImage es un ui.Image, puedes llamar a toByteData
       final imageBytes = await croppedUiImage.toByteData(format: ui.ImageByteFormat.png);
 
       if (imageBytes != null) {
         final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/cropped_image.png');
+        final String fileName = 'FACT_${DateTime.now().millisecondsSinceEpoch}.png';
+        final tempFile = File('${tempDir.path}/$fileName');
+
         await tempFile.writeAsBytes(imageBytes.buffer.asUint8List());
         scanProvider.setImage(tempFile);
+
+        // All asynchronous operations must be awaited before proceeding
+        String documentCode = '17522251';
+        await scanProvider.addProcessedDocument(tempFile, documentCode);
+
+        // Deactivate loading state after all async tasks are done
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Pop the screen only after all async operations and state updates are complete
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      }
+    } else {
+      // If no image is cropped, deactivate loading state and pop
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        Navigator.pop(context);
       }
     }
-  }
 
-
-  void _enhanceImage() {
-    final scanProvider = Provider.of<ScanProvider>(context, listen: false);
-    scanProvider.enhanceImage();
   }
 
   @override
@@ -55,35 +79,69 @@ class _PreviewEditScreenState extends State<PreviewEditScreen> {
 
         return Scaffold(
           appBar: AppBar(
-
-            title: const Text('Previsualizar y Editar'),
-            actions: [
-              IconButton(
+            foregroundColor: AppColors.softGrey,
+            backgroundColor: AppColors.vividNavy,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            title: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  color: AppColors.paleBlue,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                ),
+                const Text('Escaner de facturas'),
+              ],
+            ),
+            actions: <Widget>[
+              _isLoading
+                  ? const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  ),
+                ),
+              )
+                  : IconButton(
+                tooltip: 'Guardar y salir',
                 icon: const Icon(Icons.check),
-                onPressed: () async {
-                  await _saveCroppedImage();
-                  scanProvider.addScannedDocument(scanProvider.currentImage!);
-                  Navigator.pop(context);
-                },
+                onPressed: _saveCroppedImage,
               ),
             ],
           ),
-          body: Center(
-            child: CropImage(
-              controller: _cropController,
-              image: Image.file(scanProvider.currentImage!),
-              alwaysShowThirdLines: true,
-              paddingSize: 25.0,
-              alwaysMove: true,
+            body: Stack(
+              children: [
+                Center(
+                  child: CropImage(
+                    controller: _cropController,
+                    image: Image.file(scanProvider.currentImage!),
+                    alwaysShowThirdLines: true,
+                    paddingSize: 25.0,
+                    alwaysMove: true,
+                  ),
+                ),
+                // Loading overlay
+                if (_isLoading)
+                  const Positioned.fill(
+                    child: AbsorbPointer(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ),
           bottomNavigationBar: _buildButtons(),
         );
       },
     );
   }
 
-  // --- Botones adaptados del demo ---
   Widget _buildButtons() {
     return Container(
       padding: const EdgeInsets.all(8.0),
@@ -109,10 +167,6 @@ class _PreviewEditScreenState extends State<PreviewEditScreen> {
           IconButton(
             icon: const Icon(Icons.rotate_right),
             onPressed: () => _cropController.rotateRight(),
-          ),
-          ElevatedButton(
-            onPressed: _enhanceImage,
-            child: const Text('Mejorar'),
           ),
         ],
       ),

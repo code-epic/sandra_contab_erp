@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sandra_contab_erp/core/models/cuenta.dart';
+import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'dart:io';
 import 'package:sandra_contab_erp/providers/scan_provider.dart';
 import 'package:sandra_contab_erp/screen/gallery_screen.dart';
@@ -42,9 +42,7 @@ class CameraScreen extends StatelessWidget {
               icon: const Icon(Icons.arrow_back),
               color: AppColors.paleBlue,
               padding: EdgeInsets.zero,
-              // quita padding extra
               constraints: const BoxConstraints(),
-              // quita tamaño mínimo
               onPressed: () => Navigator.of(context).pop(),
             ),
             const Text('Seccion de Escaner'),
@@ -54,10 +52,9 @@ class CameraScreen extends StatelessWidget {
 
           Row(
             children: [
-              // Icono 1: Plan de Cuentas
               IconButton(
-                tooltip: 'Tomar foto', // Texto que aparece al pasar el cursor
-                icon: const Icon(Icons.camera_alt), // Icono minimalista
+                tooltip: 'Tomar foto',
+                icon: const Icon(Icons.camera_alt),
                 onPressed: () {
                   _pickImage(context, ImageSource.camera);
                 },
@@ -70,7 +67,6 @@ class CameraScreen extends StatelessWidget {
                   _pickImage(context, ImageSource.gallery);
                 },
               ),
-              // Icono 6: Un icono de ejemplo adicional si lo necesitas, por ejemplo, para configuración
               IconButton(
                 tooltip: 'Ver documentos',
                 icon: const Icon(Icons.collections),

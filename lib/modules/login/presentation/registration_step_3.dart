@@ -82,7 +82,6 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     }
     print(token);
 
-
     try {
       final result = await _apiService.ejecutar(
         funcion: "MPPD_CCedulaSaime",
@@ -107,7 +106,7 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
         print("No se encontró el cuerpo.");
       }
     } catch (e) {
-      print("❌ Error en ejecutar: $e");
+      print("Error en ejecutar: $e");
     }
   }
 
@@ -121,7 +120,7 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
       _isLoading = true;
     });
 
-    String fileName = '${codigo}+${cedula}.jpg';
+    String fileName = '${codigo}${cedula}.jpg';
     File imageFile = File(image.path);
     String newPath = '${imageFile.parent.path}/$fileName';
 
@@ -137,9 +136,9 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
 
   Future<void> _uploadAllFiles() async {
     AlertService.ShowAlert(context, "Subiendo archivos, por favor espere...", type: 2);
+
     if (!_isFormValid) return;
     setState(() => _isLoading = true);
-
     try {
       final files = <String, List<File>>{
         "archivos": [
@@ -150,8 +149,10 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
         ],
       };
 
+      print(files);
+
       final fields = {
-        "identificador": cedula,
+        "identificador": 'REG-${cedula}',
         "usuario": "USUARIO_ID",
       };
 
