@@ -7,15 +7,25 @@ import 'package:crypto/crypto.dart';
 
 
 class ApiService {
+
+  late final String _url_api = IsUrl + 'v1/api/crud:development';
+  late final String _url_coleccion = IsUrl + 'v1/api/ccoleccion';
+  late final String _url_token = IsUrl + 'v1/api/wusuario/login';
+
+
   http.Client createInsecureHttpClient() {
     final httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
     return IOClient(httpClient);
   }
+
   Future<Map<String, dynamic>> ejecutar({
-    required String funcion,
+    Map<String, dynamic>? coleecion,
+    String funcion = "",
     Map<String, dynamic>? valores,
     String parametros = "",
+    String token = 'jwt_contabapp',
+    int type = 1
   }) async {
     Map<String, dynamic> requestBody = {
       "funcion": funcion,
@@ -25,14 +35,29 @@ class ApiService {
     if (valores != null && valores.isNotEmpty) {
       requestBody["valores"] = jsonEncode(valores);
     }
+
+
     requestBody.removeWhere((key, value) => value == null || (value is String && value.isEmpty));
-    final url = Uri.parse("${IsUrl}crud:development");
+    var dir = _url_api;
+    if (coleecion != null && coleecion.isNotEmpty) {
+      requestBody = coleecion;
+      dir = _url_coleccion;
+    }else if (type == 2) {
+      requestBody = valores!;
+      dir = _url_token;
+    }
+
+    final url = Uri.parse("${dir}");
+    print(url);
     try {
       final client = createInsecureHttpClient();
       final headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $IsToken",
+        "Authorization": "Bearer $token",
       };
+
+
+
       final response = await client.post(
         url,
         headers: headers,

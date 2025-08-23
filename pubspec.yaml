@@ -45,7 +45,7 @@ dependencies:
   url_launcher: ^6.2.1 # Para simular la apertura de enlaces de Google/GitHub
   email_validator: ^3.0.0 # Para validación de formato de correo
   local_auth: ^2.3.0
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.5.3
   lottie: ^3.1.0
   flutter_svg: ^2.0.9
   collection: ^1.18.0   # para sort
@@ -59,7 +59,12 @@ dependencies:
   device_info_plus: ^11.5.0
   permission_handler: ^12.0.1
   crypto: ^3.0.6
-  wifi_info_flutter: ^2.0.2
+  flutter_secure_storage: ^9.2.4
+  opencv_dart: ^1.4.3
+  image_editor_plus: ^1.0.4
+  image: ^4.5.4
+  provider: ^6.1.5+1
+  crop_image: ^1.0.16
 
 dev_dependencies:
   flutter_test:

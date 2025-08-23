@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:injectable/injectable.dart';
+import 'package:sandra_contab_erp/core/constants/environments.dart';
 import 'package:sandra_contab_erp/core/models/api_service.dart';
+import 'package:sandra_contab_erp/core/models/user.dart';
 import 'dart:io';
 
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
@@ -10,18 +13,22 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sandra_contab_erp/core/models/upload_service.dart';
 
 class RegistrationStep4Page extends StatefulWidget {
   final String cedula;
+  final String nombreCompleto;
 
-  const RegistrationStep4Page({Key? key, required this.cedula}) : super(key: key);
+  const RegistrationStep4Page({Key? key, required this.cedula,  required this.nombreCompleto}) : super(key: key);
 
   @override
   _RegistrationStep4PageState createState() => _RegistrationStep4PageState();
 }
 
 class _RegistrationStep4PageState extends State<RegistrationStep4Page> {
+
   final ApiService _apiService = ApiService();
+  final UploadService _uploadService = UploadService();
   TextEditingController _correoController = TextEditingController();
   TextEditingController _claveController = TextEditingController();
   TextEditingController _repetirClaveController = TextEditingController();
@@ -73,7 +80,43 @@ class _RegistrationStep4PageState extends State<RegistrationStep4Page> {
     }
   }
 
+
+  Future<void> _uploadAllFiles() async {
+    AlertService.ShowAlert(context, "Subiendo archivos, por favor espere...", type: 2);
+    if (!_isFormValid) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final files = <String, List<File>>{
+        "archivos": [
+          _profileImage!,
+        ],
+      };
+
+      final fields = {
+        "identificador": widget.cedula,
+      };
+
+      final stream = _uploadService.uploadFiles(files, fields);
+
+      stream.listen((event) async {
+        print("Progreso: ${(event.progress * 100).toStringAsFixed(2)}%");
+        if (event.state == "DONE") {
+
+          AlertService.HideAlert(context);
+          _Registrar();
+
+        }
+      });
+    } catch (e) {
+      print("Error al subir archivos: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _Registrar() async {
+
 
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String deviceId = '';
@@ -111,22 +154,57 @@ class _RegistrationStep4PageState extends State<RegistrationStep4Page> {
 
       String hashedPassword = _apiService.ConvertToSHA256(_claveController.text);
 
-      Map<String, dynamic> registrationData = {
-        'cedula': widget.cedula,
-        'correo': _correoController.text,
-        'clave': hashedPassword,
-        'latitud': position.latitude,
-        'longitud': position.longitude,
-        'device_id': deviceId,
-        'device_name': deviceName,
-        'device_description': deviceDescription,
-        'device_brand': deviceBrand,
-        'device_manufacturer': deviceManufacturer,
-        'os_version': osVersion,
+      // Map<String, dynamic> registrationData = {
+      //   'cedula': widget.cedula,
+      //   'correo': _correoController.text,
+      //   'clave': hashedPassword,
+      //   'latitud': position.latitude,
+      //   'longitud': position.longitude,
+      //   'device_id': deviceId,
+      //   'device_name': deviceName,
+      //   'device_description': deviceDescription,
+      //   'device_brand': deviceBrand,
+      //   'device_manufacturer': deviceManufacturer,
+      //   'os_version': osVersion,
+      // };
+      //
+
+
+      DigitalSignature firmaDigital = DigitalSignature(
+          direccionmac: deviceName,
+          direccionip: deviceBrand,
+      );
+      User wUsuario = User(
+        id: deviceId,
+        cedula: widget.cedula,
+        nombre: widget.nombreCompleto,
+        apellido: '',
+        correo: _correoController.text,
+        estatus: 1,
+        titular: true,
+        firmadigital: firmaDigital,
+      );
+
+      Map<String, dynamic> Coleccion = {
+        'coleccion': Environments.funcion.IDENTIFICAR_USUARIO,
+        'objeto': wUsuario,
+        'donde': '{"cedula": "${widget.cedula}"}',
+        'driver': Environments.funcion.DRIVER,
+        'upsert': true,
       };
 
-      String jsonData = json.encode(registrationData);
-      print(jsonData);
+      // Map<String, dynamic> updatedJsonMap = wUsuario.toJson();
+      try {
+        final result = await _apiService.ejecutar(coleecion: Coleccion);
+        if (result.containsKey('msj') && result['msj'] != null) {
+          AlertService.ShowAlert(context, result['msj']);
+        }
+        print(result);
+
+      }catch (e){
+        AlertService.ShowAlert(context, 'Error de conexión inte mas tarde');
+      }
+
     } else {
       AlertService.ShowAlert(context, "Error con los permisos para crear una cuenta ", type: 1);
     }
@@ -134,6 +212,8 @@ class _RegistrationStep4PageState extends State<RegistrationStep4Page> {
 
 
   }
+
+
 
   Future<bool> _onWillPop() async {
     // Mostrar un diálogo de confirmación

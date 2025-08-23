@@ -115,16 +115,7 @@ class _CcomprasPage extends State<CcomprasPage> {
 
     );
   }
-  /* ----- BUILD ----- */
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(title: const Text('Cargar facturas')),
-  //
-  //   );
-  // }
 
-  /* ---------- INDIVIDUAL ---------- */
   Widget _buildIndividual() {
     return Form(
       key: _formKeyInd,

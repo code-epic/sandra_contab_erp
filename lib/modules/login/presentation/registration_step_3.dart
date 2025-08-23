@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:image_picker/image_picker.dart';
 import 'package:sandra_contab_erp/core/constants/modules.dart';
 import 'package:sandra_contab_erp/core/models/api_service.dart' show ApiService;
+import 'package:sandra_contab_erp/core/models/storage_job.dart';
 import 'package:sandra_contab_erp/core/models/upload_service.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'dart:io';
@@ -21,6 +23,11 @@ class RegistrationStep3Page extends StatefulWidget {
 }
 
 class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
+  final UploadService _uploadService = UploadService();
+  final ImagePicker _picker = ImagePicker();
+  final ApiService _apiService = ApiService();
+
+
   File? _rifImage;
   File? _cedulaFrontImage;
   File? _cedulaBackImage;
@@ -29,13 +36,34 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
   TextEditingController _nombreCompletoController = TextEditingController();
   TextEditingController _cedulaController = TextEditingController();
 
-  final UploadService _uploadService = UploadService();
-  final ImagePicker _picker = ImagePicker();
-  final ApiService _apiService = ApiService();
+
 
   String cedula = "";
   String nombreCompleto = "";
   String tipoDocumento = "V"; // V de Venezolano
+
+
+  Future<void> _initToken() async{
+    Map<String, dynamic> valores = {
+      'nombre': 'loginQR',
+      'clave': '1234',
+    };
+
+    final result = await _apiService.ejecutar(valores: valores, type: 2 );
+    if (result.containsKey('msj') && result['msj'] != null) {
+      AlertService.ShowAlert(context, result['msj']);
+    }else if (result.containsKey('token') && result['token'] != null) {
+      StorageJob.instance.saveJWT('recovery', result['token']);
+    }
+
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    _initToken();
+  }
 
   Future<void> _searchID() async {
     setState(() {
@@ -48,10 +76,18 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
       AlertService.ShowAlert(context, "Por favor ingrese una cédula válida.");
       return;
     }
+    String? token = await StorageJob.instance.getJWT('recovery');
+    if (token == null) {
+      throw Exception('No JWT token found');
+    }
+    print(token);
+
+
     try {
       final result = await _apiService.ejecutar(
         funcion: "MPPD_CCedulaSaime",
         parametros: '${cedula}',
+        token: token,
       );
 
       if (result.containsKey('msj') && result['msj'] != null) {
@@ -129,7 +165,7 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RegistrationStep4Page(cedula: cedula),
+              builder: (context) => RegistrationStep4Page(cedula: cedula, nombreCompleto: nombreCompleto),
             ),
           );
         }

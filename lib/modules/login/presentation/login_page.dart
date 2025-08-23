@@ -171,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: AssetImage(assetPath('sandra.png')),
+                          image: AssetImage(assetPath('job.png')),
                           fit: BoxFit.cover,
                         ),
                         border: Border.all(

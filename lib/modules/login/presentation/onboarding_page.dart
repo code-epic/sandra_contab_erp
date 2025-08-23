@@ -69,7 +69,7 @@ class _OnboardingPage extends  State<OnboardingPage> {
             const SizedBox(height: 44),
             const Text(
               '¡Bienvenido a ContabApp!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.vividNavy),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.vividNavy),
             ),
             const SizedBox(height: 40),
             Row(

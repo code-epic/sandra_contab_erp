@@ -30,8 +30,7 @@ import '../../modules/contab/dinamica_page.dart';
 
 
 
-final GoRouter appRouter = GoRouter(
-  routes: [
+final List<RouteBase> appRoutes = [
     GoRoute(
       path: '/',
       builder: (_, __) => const OnboardingPage(),
@@ -81,34 +80,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(path: '/cventas', builder: (_, __) => const CventasPage()),
         GoRoute(path: '/clibroventas', builder: (_, __) => const ClibroventasPage()),
         GoRoute(path: '/clibrocompras', builder: (_, __) => const ClibrocomprasPage()),
-        GoRoute(path: '/cinvetarios', builder: (_, __) => const CinventariosPage()),
+        GoRoute(path: '/cinventarios', builder: (_, __) => const CinventariosPage()),
       ],
     ),
-  ],
-);
-
-// final GoRouter appRouter = GoRouter(
-//   routes: [
-//     ShellRoute(
-//       builder: (context, state, child) => AppShell(child: child),
-//       routes: [
-//         // '/': (context) => const LoginPage(),
-//         // '/register': (context) => const RegistrationPage(),
-//         // '/home': (context) => const HomePage(),
-//         GoRoute(path: '/', builder: (_, __) => const LoginPage()),
-//         GoRoute(path: '/accounting', builder: (_, __) => const AccountingPage()),
-//         // GoRoute(path: '/sales', builder: (_, __) => const SalesPage()),
-//         // GoRoute(path: '/payroll', builder: (_, __) => const PayrollPage()),
-//         // GoRoute(path: '/treasury', builder: (_, __) => const TreasuryPage()),
-//         // GoRoute(path: '/taxes', builder: (_, __) => const TaxesPage()),
-//         // GoRoute(path: '/clients', builder: (_, __) => const ClientsPage()),
-//         // GoRoute(path: '/tasks', builder: (_, __) => const TasksPage()),
-//         // GoRoute(path: '/ai', builder: (_, __) => const AiPage()),
-//         // GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
-//       ],
-//     ),
-//   ],
-// );
+  ];
 
 class AppRouter {
   static final router = GoRouter(

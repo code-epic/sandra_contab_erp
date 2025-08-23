@@ -92,4 +92,92 @@ class AlertService {
       Navigator.of(context).pop(); // Cierra el último dialog abierto
     }
   }
+
+
+  static void ShowCongratulation(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Container(
+            width: 300,
+            height: 400,
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Fondo degradado azul en la parte superior
+                Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12.0),
+                      topRight: Radius.circular(12.0),
+                    ),
+                    gradient: LinearGradient(
+                      colors: [Colors.blue, Colors.lightBlueAccent],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  child: Center(
+                    // Imagen circular en el centro
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(60.0),
+                        child: Image.asset(
+                          'sandra.png', // Asegúrate de tener la imagen sandra.png en tus assets
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "¡Felicitaciones!",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                Spacer(),
+
+                // Botón de continuar
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text("Continuar", style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
