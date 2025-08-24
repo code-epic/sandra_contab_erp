@@ -6,12 +6,15 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:sandra_contab_erp/screen/gallery_screen.dart';
 import 'package:sandra_contab_erp/screen/preview_edit_screen.dart';
+import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 
 class CinventariosPage extends StatefulWidget {
   const CinventariosPage({super.key});
   @override
   State<CinventariosPage> createState() => _CinventariosPage();
 }
+
+
 
 class _CinventariosPage extends State<CinventariosPage> {
   final PageController _pageController = PageController(viewportFraction: 0.85);
@@ -33,6 +36,42 @@ class _CinventariosPage extends State<CinventariosPage> {
     }
   }
 
+
+  Future<void> _scanDocument(BuildContext context) async {
+    DocumentScannerOptions documentOptions = DocumentScannerOptions(
+      documentFormat: DocumentFormat.jpeg,
+      mode: ScannerMode.filter,
+      pageLimit: 5,
+      isGalleryImport: true,
+    );
+
+    try {
+      final documentScanner = DocumentScanner(options: documentOptions);
+      DocumentScanningResult result = await documentScanner.scanDocument();
+      // final pdf = result.pdf;
+      final images = result.images;
+      if (result.images.isNotEmpty) {
+        final scanProvider = Provider.of<ScanProvider>(context, listen: false);
+        for (var path in result.images) {
+          final tmpFile = File(path);
+          scanProvider.setImage(tmpFile);
+          print("cargando imagen del proceo ${path}");
+          String documentCode = '17522251';
+          await scanProvider.addProcessedDocument(tmpFile, documentCode);
+        }
+      }
+
+
+    } catch (e) {
+      print('Error al escanear: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al escanear: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -108,35 +147,26 @@ class _CinventariosPage extends State<CinventariosPage> {
               constraints: const BoxConstraints(),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            const Text('Escaner de facturas'),
+            const Text('Escanear de facturas'),
           ],
         ),
         actions: <Widget>[
           Row(
             children: [
+              // Botón para subir archivos
               IconButton(
-                tooltip: 'Tomar foto',
-                icon: const Icon(Icons.camera_alt),
-                onPressed: () {
-                  _pickImage(context, ImageSource.camera);
-                },
-              ),
-              IconButton(
-                tooltip: 'Seleccionar de Galería',
-                icon: const Icon(Icons.photo_library),
-                onPressed: () {
-                  _pickImage(context, ImageSource.gallery);
-                },
-              ),
-              IconButton(
-                tooltip: 'Ver documentos',
-                icon: const Icon(Icons.collections),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GalleryScreen()),
+                tooltip: 'Subir archivos',
+                icon: const Icon(Icons.upload_file),
+                onPressed: scanProvider.scannedDocuments.isNotEmpty
+                    ? () {
+                  scanProvider.uploadDocuments();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Subiendo archivos...'),
+                    ),
                   );
-                },
+                }
+                    : null,
               ),
             ],
           ),
@@ -300,29 +330,52 @@ class _CinventariosPage extends State<CinventariosPage> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
-            Consumer<ScanProvider>(
-              builder: (context, provider, child) {
-                return ElevatedButton.icon(
-                  onPressed: provider.scannedDocuments.isEmpty
-                      ? null
-                      : () {
-                    provider.uploadDocuments();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Subiendo documentos...')));
-                  },
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Subir Documentos'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.vividNavy,
-                    foregroundColor: AppColors.softGrey,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  ),
-                );
-              },
-            ),
+
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Muestra un menú de opciones cuando se presiona el FAB
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext bc) {
+              return SafeArea(
+                child: Wrap(
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.document_scanner),
+                      title: const Text('Escanear documento'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _scanDocument(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.camera_alt),
+                      title: const Text('Tomar foto'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(context, ImageSource.camera);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.photo_library),
+                      title: const Text('Seleccionar de Galería'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(context, ImageSource.gallery);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        backgroundColor: AppColors.vividNavy,
+        tooltip: 'Opciones de Escaneo',
+        child: const Icon(Icons.add_a_photo, color: AppColors.paleBlue),
       ),
     );
   }

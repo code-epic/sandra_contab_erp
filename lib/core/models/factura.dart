@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 class Factura {
   final int? id;
+  final String rif;
   final String razon;
   final String codigo;
   final DateTime fecha;
@@ -10,6 +11,7 @@ class Factura {
 
   Factura({
     this.id,
+    required this.rif,
     required this.razon,
     required this.codigo,
     required this.fecha,
@@ -22,6 +24,7 @@ class Factura {
     // Asumiendo que el JSON de la API viene en formato yyyy-MM-dd
     return Factura(
       id: json['id'],
+      rif: json['rif'],
       razon: json['razon'],
       codigo: json['codigo'],
       fecha: DateTime.parse(json['fecha']),
@@ -34,6 +37,7 @@ class Factura {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'rif': rif,
       'razon': razon,
       'codigo': codigo,
       'fecha': DateFormat('yyyy-MM-dd').format(fecha), // Formatear la fecha aquí
@@ -44,6 +48,7 @@ class Factura {
 
   // Método estático para un objeto de prueba
   static Factura get mockFactura => Factura(
+    rif: '17522251',
     razon: 'Ejemplo S.A.',
     codigo: 'INV-001',
     fecha: DateTime.now(),

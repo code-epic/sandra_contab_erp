@@ -1,12 +1,10 @@
 
 import 'dart:convert';
-
-import 'package:email_validator/email_validator.dart';
 import 'package:sandra_contab_erp/core/models/api_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 
-final _secureStorage = const FlutterSecureStorage();
+
 
 class AuthService {
   static final Map<String, String> _users = {}; // email: password
@@ -29,7 +27,7 @@ class AuthService {
       final token = result['token'];
       await _secureStorage.write(key: 'auth_token', value: token);
       await _secureStorage.write(key: 'auth_user', value: jsonEncode(valores));
-      print(jsonEncode(valores));
+
       return token;
     }
   }

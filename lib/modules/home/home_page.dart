@@ -20,17 +20,34 @@ class _HomePageState extends State<HomePage> {
 
       appBar: AppBar(
         foregroundColor: AppColors.softGrey,
-        title: const Text('Gestión Contable'),
+        backgroundColor: AppColors.vividNavy,
         automaticallyImplyLeading: false, // Oculta la flecha de retroceso
-        backgroundColor: AppColors.tealPop,
-        actions: [
-          IconButton(
-            color:AppColors.paleBlue,
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              _authService.logout();
-              context.go('/login');
-            },
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.menu_open),
+              color: AppColors.paleBlue,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () => {},
+            ),
+            const Text('ContabApp'),
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            children: [
+              // Botón para subir archivos
+              IconButton(
+                tooltip: 'Cerrar Sesión',
+                icon: const Icon(Icons.logout),
+                onPressed: () {
+                  _authService.logout();
+                  context.go('/login');
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -43,9 +60,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ConceptsCarousel(),
-
                 SizedBox(height: 16.0),
-
                 SizedBox(height: 16.0),
                 SystemMessagesCard(),
                 SizedBox(height: 24.0),

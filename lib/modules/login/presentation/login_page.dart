@@ -19,10 +19,10 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  bool _isLoading = true; // Iniciar en true para mostrar el indicador de carga
+  bool _isLoading = true;
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _canCheckBiometrics = false;
-  bool _isAuthenticatedWithToken = false; // Nuevo estado para verificar si hay un token
+  bool _isAuthenticatedWithToken = false;
 
   @override
   void initState() {

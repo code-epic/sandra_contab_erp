@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:sandra_contab_erp/core/constants/modules.dart';
-import 'package:http/io_client.dart'; // Importa este paquete
+import 'package:http/io_client.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 class UploadProgress {
@@ -21,7 +22,7 @@ class UploadProgress {
 
 class UploadService {
   final String baseUrl = IsUrl;
-  final String token = IsToken;
+  final _secureStorage = const FlutterSecureStorage();
 
   http.Client createInsecureHttpClient() {
     final httpClient = HttpClient()
@@ -38,6 +39,7 @@ class UploadService {
       try {
         final uri = Uri.parse("${baseUrl}v1/api/subirarchivos");
         final request = http.MultipartRequest("POST", uri);
+        final token = await _secureStorage.read(key: 'auth_user');
         request.headers["Authorization"] = "Bearer $token";
 
         // Campos extras
