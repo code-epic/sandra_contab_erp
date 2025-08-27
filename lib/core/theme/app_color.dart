@@ -39,6 +39,21 @@ class AppColors {
   static const Color snow        = Color(0xFFF7F9FC);
   static const Color softGrey    = Color(0xFFE5EAF2);
   static const Color steelGrey   = Color(0xFF8E9AAB);
+
+  static const Color primaryOrange = Color(0xFFF7BD69);
+  static const Color primaryTeal = Color(0xFF88D3CE);
+  static const Color primaryPurple = Color(0xFFC0A2D3);
+
+
+
+  static Color yellowSoft = Color(0xFFF7BD69).withOpacity(0.15);
+  static Color yellowSoftmax = Color(0xFFF7BD69).withOpacity(0.9);
+  static Color purpleSoft = Color(0xFFC0A2D3).withOpacity(0.15);
+  static Color purpleSoftmax = Color(0xFFC0A2D3).withOpacity(0.9);
+  static Color greenSoft = Color(0xFF88D3CE).withOpacity(0.15);
+  static Color greenSoftmax = Color(0xFF88D3CE).withOpacity(0.9);
+  static const Color textVividNavy = Color(0xFF1A237E);
+  static const Color backgroundLightGrey = Color(0xFFF5F5F5);
 }
 
 // Ejemplo de cómo usarla en un tema

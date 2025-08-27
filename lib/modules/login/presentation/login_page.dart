@@ -7,6 +7,9 @@ import 'package:local_auth/local_auth.dart';
 import 'package:sandra_contab_erp/modules/security/auth_service.dart';
 import '../../../core/theme/app_color.dart';
 
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -23,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _canCheckBiometrics = false;
   bool _isAuthenticatedWithToken = false;
+
 
   @override
   void initState() {

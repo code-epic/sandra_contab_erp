@@ -77,7 +77,7 @@ class _ContabPage extends State<ContabPage> {
                 color: AppColors.paleBlue,
                 padding: EdgeInsets.zero,   // quita padding extra
                 constraints: const BoxConstraints(), // quita tamaño mínimo
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => context.go('/home'),
               ),
               const Text('Contabilidad'),
             ],

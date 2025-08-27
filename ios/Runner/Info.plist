@@ -16,6 +16,10 @@
 	<string>sandra_contab_erp</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+    <string>Reconoce tu voz para convertirla en texto</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Necesitamos el micrófono para escucharte</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>

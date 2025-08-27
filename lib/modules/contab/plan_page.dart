@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sandra_contab_erp/core/models/cuenta.dart' hide AppColors;
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 
@@ -208,7 +209,7 @@ class _PlanPage extends State<PlanPage> {
               color: AppColors.paleBlue,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go('/home'),
             ),
             const Text('Plan de Cuentas'),
           ],

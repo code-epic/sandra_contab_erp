@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:sandra_contab_erp/providers/scan_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:sandra_contab_erp/screen/gallery_screen.dart';
 import 'package:sandra_contab_erp/screen/preview_edit_screen.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 

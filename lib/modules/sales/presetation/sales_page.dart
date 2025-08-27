@@ -55,20 +55,20 @@ class _SalesPage extends State<SalesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: AppColors.softGrey,
-        backgroundColor: AppColors.vividNavy,
+        foregroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.softGrey,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: Row(
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              color: AppColors.paleBlue,
+              color: AppColors.vividNavy,
               padding: EdgeInsets.zero,
               // quita padding extra
               constraints: const BoxConstraints(),
               // quita tamaño mínimo
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go('/home'),
             ),
             const Text('Compras y ventas'),
           ],
@@ -80,6 +80,7 @@ class _SalesPage extends State<SalesPage> {
               IconButton(
                 tooltip: 'Reportes',
                 icon: const Icon(Icons.bar_chart_outlined),
+                color: AppColors.vividNavy,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -92,7 +93,7 @@ class _SalesPage extends State<SalesPage> {
           ),
         ],
       ),
-      backgroundColor: Colors.white.withOpacity(.98),
+      backgroundColor: AppColors.softGrey,
 
       body: SingleChildScrollView(
         child: AccionesContablesCard(items: misAcciones),

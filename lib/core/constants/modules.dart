@@ -5,69 +5,211 @@ import 'package:flutter/foundation.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 
 
-final kModules = [
-  Module(
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: PhosphorIcons.house(),
-    route: '/home',
-  ),
+final KModuloSide = [
   Module(
     id: 'contab',
     title: 'Contabilidad General',
     icon: PhosphorIcons.calculator(),
     route: '/contab',
+    description: 'Gestiona tus cuentas, gastos e ingresos.',
   ),
   Module(
     id: 'sales',
     title: 'Compras y Ventas',
     icon: PhosphorIcons.shoppingCart(),
     route: '/sales',
+    description: 'Controla el ciclo de vida de tus productos.',
   ),
   Module(
     id: 'payroll',
     title: 'Nómina y Finiquitos',
     icon: PhosphorIcons.users(),
     route: '/payroll',
+    description: 'Calcula salarios y finiquitos de tu personal.',
   ),
   Module(
     id: 'treasury',
     title: 'Tesorería y Pagos',
     icon: PhosphorIcons.bank(),
     route: '/treasury',
+    description: 'Administra tus flujos de caja y pagos pendientes.',
   ),
   Module(
     id: 'taxes',
     title: 'Impuestos y Declaraciones',
     icon: PhosphorIcons.fileText(),
     route: '/taxes',
+    description: 'Prepara y presenta tus declaraciones fiscales.',
   ),
   Module(
     id: 'clients',
     title: 'Gestión de Clientes',
     icon: PhosphorIcons.buildings(),
     route: '/clients',
+    description: 'Mantén un registro de tus clientes y proveedores.',
   ),
   Module(
     id: 'tasks',
     title: 'Tareas y Alertas',
     icon: PhosphorIcons.checkSquare(),
     route: '/tasks',
+    description: 'Organiza y recibe recordatorios de tus tareas.',
   ),
   Module(
     id: 'ai',
     title: 'Inteligencia Artificial',
     icon: PhosphorIcons.robot(),
     route: '/ai',
+    description: 'Herramientas de IA para optimizar tus procesos.',
+  )
+];
+
+final kModules = [
+  Module(
+    id: 'dashboard',
+    title: 'Principal',
+    icon: PhosphorIcons.house(),
+    route: '/home',
+    description: 'Vista general del estado de tu negocio.',
+  ),
+  Module(
+    id: 'contab',
+    title: 'Contabilidad General',
+    icon: PhosphorIcons.calculator(),
+    route: '/contab',
+    description: 'Gestiona tus cuentas, gastos e ingresos.',
+  ),
+  Module(
+    id: 'sales',
+    title: 'Compras y Ventas',
+    icon: PhosphorIcons.shoppingCart(),
+    route: '/sales',
+    description: 'Controla el ciclo de vida de tus productos.',
+  ),
+  Module(
+    id: 'payroll',
+    title: 'Nómina y Finiquitos',
+    icon: PhosphorIcons.users(),
+    route: '/payroll',
+    description: 'Calcula salarios y finiquitos de tu personal.',
+  ),
+  Module(
+    id: 'treasury',
+    title: 'Tesorería y Pagos',
+    icon: PhosphorIcons.bank(),
+    route: '/treasury',
+    description: 'Administra tus flujos de caja y pagos pendientes.',
+  ),
+  Module(
+    id: 'taxes',
+    title: 'Impuestos y Declaraciones',
+    icon: PhosphorIcons.fileText(),
+    route: '/taxes',
+    description: 'Prepara y presenta tus declaraciones fiscales.',
+  ),
+  Module(
+    id: 'clients',
+    title: 'Gestión de Clientes',
+    icon: PhosphorIcons.buildings(),
+    route: '/clients',
+    description: 'Mantén un registro de tus clientes y proveedores.',
+  ),
+  Module(
+    id: 'tasks',
+    title: 'Tareas y Alertas',
+    icon: PhosphorIcons.checkSquare(),
+    route: '/tasks',
+    description: 'Organiza y recibe recordatorios de tus tareas.',
+  ),
+  Module(
+    id: 'ai',
+    title: 'Inteligencia Artificial',
+    icon: PhosphorIcons.robot(),
+    route: '/ai',
+    description: 'Herramientas de IA para optimizar tus procesos.',
   ),
   Module(
     id: 'settings',
     title: 'Configuración',
     icon: PhosphorIcons.gear(),
     route: '/settings',
+    description: 'Ajusta las preferencias de la aplicación.',
   ),
 ];
 
+
+final XkModules = [
+  Module(
+    id: 'payroll',
+    title: 'Nómina y Finiquitos',
+    icon: PhosphorIcons.users(),
+    route: '/payroll',
+    description: 'Calcula salarios y finiquitos de tu personal.',
+  ),
+  Module(
+    id: 'treasury',
+    title: 'Tesorería y Pagos',
+    icon: PhosphorIcons.bank(),
+    route: '/treasury',
+    description: 'Administra tus flujos de caja y pagos pendientes.',
+  ),
+  Module(
+    id: 'taxes',
+    title: 'Impuestos y Declaraciones',
+    icon: PhosphorIcons.fileText(),
+    route: '/taxes',
+    description: 'Prepara y presenta tus declaraciones fiscales.',
+  ),
+  Module(
+    id: 'contab',
+    title: 'Contabilidad General',
+    icon: PhosphorIcons.calculator(),
+    route: '/contab',
+    description: 'Gestiona tus cuentas, gastos e ingresos.',
+  ),
+  Module(
+    id: 'dashboard',
+    title: 'Principal',
+    icon: PhosphorIcons.house(),
+    route: '/home',
+    description: 'Vista general del estado de tu negocio.',
+  ),
+  Module(
+    id: 'sales',
+    title: 'Compras y Ventas',
+    icon: PhosphorIcons.shoppingCart(),
+    route: '/sales',
+    description: 'Controla el ciclo de vida de tus productos.',
+  ),
+  Module(
+    id: 'clients',
+    title: 'Gestión de Clientes',
+    icon: PhosphorIcons.buildings(),
+    route: '/clients',
+    description: 'Mantén un registro de tus clientes y proveedores.',
+  ),
+  Module(
+    id: 'tasks',
+    title: 'Tareas y Alertas',
+    icon: PhosphorIcons.checkSquare(),
+    route: '/tasks',
+    description: 'Organiza y recibe recordatorios de tus tareas.',
+  ),
+  Module(
+    id: 'ai',
+    title: 'Inteligencia Artificial',
+    icon: PhosphorIcons.robot(),
+    route: '/ai',
+    description: 'Herramientas de IA para optimizar tus procesos.',
+  ),
+  Module(
+    id: 'settings',
+    title: 'Configuración',
+    icon: PhosphorIcons.gear(),
+    route: '/settings',
+    description: 'Ajusta las preferencias de la aplicación.',
+  ),
+];
 
 
 
