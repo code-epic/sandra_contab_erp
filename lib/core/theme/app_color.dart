@@ -46,6 +46,8 @@ class AppColors {
 
 
 
+  static Color redSoft = Color(0xFFE05B00).withOpacity(0.15);
+  static Color redSoftmax = Color(0xFFE05B00).withOpacity(0.9);
   static Color yellowSoft = Color(0xFFF7BD69).withOpacity(0.15);
   static Color yellowSoftmax = Color(0xFFF7BD69).withOpacity(0.9);
   static Color purpleSoft = Color(0xFFC0A2D3).withOpacity(0.15);

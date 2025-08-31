@@ -7,6 +7,13 @@ import 'package:sandra_contab_erp/core/theme/app_color.dart';
 
 final KModuloSide = [
   Module(
+    id: 'explorador',
+    title: 'Explorador',
+    icon: PhosphorIcons.hardDrives(),
+    route: '/explorador',
+    description: 'Explorador de Documentos',
+  ),
+  Module(
     id: 'contab',
     title: 'Contabilidad General',
     icon: PhosphorIcons.calculator(),
@@ -45,23 +52,9 @@ final KModuloSide = [
     id: 'clients',
     title: 'Gestión de Clientes',
     icon: PhosphorIcons.buildings(),
-    route: '/clients',
+    route: '/cliente',
     description: 'Mantén un registro de tus clientes y proveedores.',
   ),
-  Module(
-    id: 'tasks',
-    title: 'Tareas y Alertas',
-    icon: PhosphorIcons.checkSquare(),
-    route: '/tasks',
-    description: 'Organiza y recibe recordatorios de tus tareas.',
-  ),
-  Module(
-    id: 'ai',
-    title: 'Inteligencia Artificial',
-    icon: PhosphorIcons.robot(),
-    route: '/ai',
-    description: 'Herramientas de IA para optimizar tus procesos.',
-  )
 ];
 
 final kModules = [
@@ -101,17 +94,17 @@ final kModules = [
     description: 'Administra tus flujos de caja y pagos pendientes.',
   ),
   Module(
-    id: 'taxes',
-    title: 'Impuestos y Declaraciones',
-    icon: PhosphorIcons.fileText(),
-    route: '/taxes',
-    description: 'Prepara y presenta tus declaraciones fiscales.',
+    id: 'explorador',
+    title: 'Explorador',
+    icon: PhosphorIcons.fileArchive(),
+    route: '/explorador',
+    description: 'Explorador de Documentos',
   ),
   Module(
     id: 'clients',
     title: 'Gestión de Clientes',
     icon: PhosphorIcons.buildings(),
-    route: '/clients',
+    route: '/cliente',
     description: 'Mantén un registro de tus clientes y proveedores.',
   ),
   Module(
@@ -120,20 +113,6 @@ final kModules = [
     icon: PhosphorIcons.checkSquare(),
     route: '/tasks',
     description: 'Organiza y recibe recordatorios de tus tareas.',
-  ),
-  Module(
-    id: 'ai',
-    title: 'Inteligencia Artificial',
-    icon: PhosphorIcons.robot(),
-    route: '/ai',
-    description: 'Herramientas de IA para optimizar tus procesos.',
-  ),
-  Module(
-    id: 'settings',
-    title: 'Configuración',
-    icon: PhosphorIcons.gear(),
-    route: '/settings',
-    description: 'Ajusta las preferencias de la aplicación.',
   ),
 ];
 
@@ -185,7 +164,7 @@ final XkModules = [
     id: 'clients',
     title: 'Gestión de Clientes',
     icon: PhosphorIcons.buildings(),
-    route: '/clients',
+    route: '/cliente',
     description: 'Mantén un registro de tus clientes y proveedores.',
   ),
   Module(
@@ -195,20 +174,7 @@ final XkModules = [
     route: '/tasks',
     description: 'Organiza y recibe recordatorios de tus tareas.',
   ),
-  Module(
-    id: 'ai',
-    title: 'Inteligencia Artificial',
-    icon: PhosphorIcons.robot(),
-    route: '/ai',
-    description: 'Herramientas de IA para optimizar tus procesos.',
-  ),
-  Module(
-    id: 'settings',
-    title: 'Configuración',
-    icon: PhosphorIcons.gear(),
-    route: '/settings',
-    description: 'Ajusta las preferencias de la aplicación.',
-  ),
+
 ];
 
 

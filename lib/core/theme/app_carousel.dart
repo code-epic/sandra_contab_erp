@@ -7,7 +7,9 @@ import 'package:sandra_contab_erp/core/theme/app_color.dart';
 class ConceptsCarousel extends StatefulWidget {
   final List<Module> modules;
   final Function(Module)? onPageChanged;
-  const ConceptsCarousel({super.key, required this.modules, this.onPageChanged});
+  final Function(String) onPageTapped;
+
+  const ConceptsCarousel({super.key, required this.modules, this.onPageChanged, required this.onPageTapped,});
   @override
   State<ConceptsCarousel> createState() => _ConceptsCarouselState();
 }
@@ -58,7 +60,7 @@ class _ConceptsCarouselState extends State<ConceptsCarousel> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: InkWell(
               onTap: () {
-                context.push(m.route);
+                context.go(m.route);
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),

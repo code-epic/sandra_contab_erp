@@ -11,6 +11,7 @@ import 'package:sandra_contab_erp/modules/contab/contab_page.dart';
 import 'package:sandra_contab_erp/modules/contab/factura_page.dart';
 import 'package:sandra_contab_erp/modules/contab/plan_page.dart';
 import 'package:sandra_contab_erp/modules/contab/reportes_page.dart';
+import 'package:sandra_contab_erp/modules/home/explorador_page.dart';
 import 'package:sandra_contab_erp/modules/login/presentation/login_page.dart';
 import 'package:sandra_contab_erp/modules/login/presentation/registration_page.dart';
 import 'package:sandra_contab_erp/modules/home/home_page.dart';
@@ -57,8 +58,8 @@ final List<RouteBase> appRoutes = [
       builder: (context, state, child) => AppShell(child: child),
       routes: [
         GoRoute(path: '/home', builder: (_, __) => const HomePage()),
+        GoRoute(path: '/explorador', builder: (_, __) => const ExploradorPage()),
         GoRoute(path: '/accounting', builder: (_, __) => const AccountingPage()),
-        GoRoute(path: '/register', builder: (_, __) => const RegistrationPage()), // Registration might also be outside shell
         GoRoute(path: '/factura', builder: (_, __) => const FacturaPage()),
         GoRoute(path: '/contab', builder: (_, __) => const ContabPage()),
 

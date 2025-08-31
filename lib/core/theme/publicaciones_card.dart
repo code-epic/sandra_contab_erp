@@ -220,6 +220,8 @@ class _BarChartCarouselState extends State<BarChartCarousel> {
   final PageController _controller = PageController(viewportFraction: 0.2);
   int _currentPage = 0;
 
+  late int _maxCount;
+
   @override
   void initState() {
     super.initState();
@@ -236,6 +238,17 @@ class _BarChartCarouselState extends State<BarChartCarousel> {
         }
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Movemos el cálculo del valor máximo aquí para que se actualice si los datos cambian.
+    // También, nos aseguramos de que no sea 0 para evitar la excepción.
+    _maxCount = widget.data.map((e) => e.count).reduce(math.max);
+    if (_maxCount == 0) {
+      _maxCount = 1; // Evita la división por cero si todos los recuentos son 0.
+    }
   }
 
   @override
@@ -273,7 +286,8 @@ class _BarChartCarouselState extends State<BarChartCarousel> {
                   final maxHeight = constraints.maxHeight;
                   final textHeight = 12 + 4 + 12 + 4 + 12; // Altura estimada del texto y espacios
                   final barMaxHeight = maxHeight - textHeight;
-                  final barHeight = (item.count.toDouble() / 6.0) * barMaxHeight;
+                  // final barHeight = (item.count.toDouble() / 6.0) * barMaxHeight;
+                  final barHeight = (item.count.toDouble() / _maxCount) * barMaxHeight;
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:sandra_contab_erp/core/constants/modules.dart';
@@ -8,9 +9,11 @@ import 'package:crypto/crypto.dart';
 
 class ApiService {
 
+  final _secureStorage = const FlutterSecureStorage();
   late final String _url_api = IsUrl + 'v1/api/crud:development';
   late final String _url_coleccion = IsUrl + 'v1/api/ccoleccion';
   late final String _url_token = IsUrl + 'v1/api/wusuario/login';
+
 
 
   http.Client createInsecureHttpClient() {
@@ -20,7 +23,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> ejecutar({
-    Map<String, dynamic>? coleecion,
+    Map<String, dynamic>? coleccion,
     String funcion = "",
     Map<String, dynamic>? valores,
     String parametros = "",
@@ -39,8 +42,8 @@ class ApiService {
 
     requestBody.removeWhere((key, value) => value == null || (value is String && value.isEmpty));
     var dir = _url_api;
-    if (coleecion != null && coleecion.isNotEmpty) {
-      requestBody = coleecion;
+    if (coleccion != null && coleccion.isNotEmpty) {
+      requestBody = coleccion;
       dir = _url_coleccion;
     }else if (type == 2) {
       requestBody = valores!;
@@ -48,15 +51,16 @@ class ApiService {
     }
 
     final url = Uri.parse("${dir}");
-    print(url);
+
     try {
+      final sToken = await _secureStorage.read(key: 'auth_token');
+      // print(sToken);
       final client = createInsecureHttpClient();
       final headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
+        "Authorization": "Bearer $sToken",
       };
-
-
+      print(jsonEncode(requestBody));
 
       final response = await client.post(
         url,

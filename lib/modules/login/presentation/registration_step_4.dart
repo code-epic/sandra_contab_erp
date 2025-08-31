@@ -195,7 +195,7 @@ class _RegistrationStep4PageState extends State<RegistrationStep4Page> {
 
       // Map<String, dynamic> updatedJsonMap = wUsuario.toJson();
       try {
-        final result = await _apiService.ejecutar(coleecion: Coleccion);
+        final result = await _apiService.ejecutar(coleccion: Coleccion);
         if (result.containsKey('msj') && result['msj'] != null) {
           AlertService.ShowAlert(context, result['msj']);
         }

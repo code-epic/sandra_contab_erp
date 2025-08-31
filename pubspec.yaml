@@ -69,6 +69,10 @@ dependencies:
   camera: ^0.11.2
   speech_to_text: ^7.3.0
   audioplayers: ^6.5.0
+  json_annotation: ^4.9.0
+  build_runner: ^2.7.0
+  json_serializable: ^6.11.0
+  tflite_flutter: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -81,7 +85,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   
-  build_runner: ^2.4.11
   injectable_generator: ^2.6.1
   drift_dev: ^2.19.1
   envied_generator: ^1.2.0
@@ -104,7 +107,13 @@ flutter:
       - assets/svg/payroll.svg
       - assets/svg/wallet.svg
       - assets/svg/cliente.svg
+      - assets/sound/home.mp3
+      - assets/sound/search.mp3
+      - assets/sound/salir.mp3
       - assets/sound/recorder.mp3
+      - assets/sound/eliminar.mp3
+      - assets/models/all-MiniLM-L6-v2.tflite
+      - assets/models/vocab.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

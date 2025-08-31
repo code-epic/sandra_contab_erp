@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Cuenta {
+  final String? rif;
   final String codigo;
   final String descripcion;
   final String naturaleza;
@@ -8,6 +9,7 @@ class Cuenta {
   final String? moneda;
 
   const Cuenta({
+    this.rif = '',
     required this.codigo,
     required this.descripcion,
     required this.naturaleza,
@@ -15,10 +17,6 @@ class Cuenta {
     this.moneda = 'Bs.'
   });
 }
-
-
-
-
 
 class XHeader extends StatelessWidget {
   final void Function(int) onSort;

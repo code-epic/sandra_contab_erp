@@ -139,6 +139,15 @@ class _AgendaPageState extends State<AgendaPage> with SingleTickerProviderStateM
       triggerWord: 'Sandra',
       commands: [
         VoiceCommand(
+          phrase: 'explorador de documentos',
+          action: (context) {
+            context.go('/explorador');
+            setState(() {
+              _recognizedText = 'Comando ejecutado: Explorador de documentos documentos...';
+            });
+          },
+        ),
+        VoiceCommand(
           phrase: 'escanea documentos automaticamente',
           action: (context) {
             debugPrint('Navegando a CinventariosPage y lanzando _scanDocument().');
@@ -202,23 +211,22 @@ class _AgendaPageState extends State<AgendaPage> with SingleTickerProviderStateM
 
   // Método para iniciar la escucha de voz.
   void _startListening() async {
-    final player = AudioPlayer(); await player.play(AssetSource('sound/recorder.mp3'));
+    final player = AudioPlayer();
     if (!_isListening) {
       bool available = await _speech.initialize();
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
           onResult: (result) {
-            setState(() {
+            setState(() async {
               _recognizedText = result.recognizedWords;
               if (result.hasConfidenceRating && result.confidence > 0) {
                 _confidence = result.confidence;
                 _stopListening(_recognizedText);
                 _animationController.stop(canceled:true);
+                 await player.play(AssetSource('sound/recorder.mp3'));
               }
             });
-
-
           },
         );
       }

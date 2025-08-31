@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+
+
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 
 import '../../../core/constants/modules.dart';
@@ -16,9 +19,14 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPage extends  State<OnboardingPage> {
 
+
+
   Future<void> _goToLink() async {
     context.go('/register');
   }
+
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +104,7 @@ class _OnboardingPage extends  State<OnboardingPage> {
                       fontWeight: FontWeight.bold, color: AppColors.navy),
                   ),
             ),
+
           ],
         ),
       ),

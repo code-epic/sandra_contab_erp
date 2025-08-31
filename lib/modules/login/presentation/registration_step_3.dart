@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:sandra_contab_erp/core/constants/modules.dart';
 import 'package:sandra_contab_erp/core/models/api_service.dart' show ApiService;
-import 'package:sandra_contab_erp/core/models/storage_job.dart';
 import 'package:sandra_contab_erp/core/models/upload_service.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'dart:io';
@@ -26,6 +25,7 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
   final UploadService _uploadService = UploadService();
   final ImagePicker _picker = ImagePicker();
   final ApiService _apiService = ApiService();
+  final _secureStorage = const FlutterSecureStorage();
 
 
   File? _rifImage;
@@ -53,7 +53,9 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
     if (result.containsKey('msj') && result['msj'] != null) {
       AlertService.ShowAlert(context, result['msj']);
     }else if (result.containsKey('token') && result['token'] != null) {
-      StorageJob.instance.saveJWT('recovery', result['token']);
+      // StorageJob.instance.saveJWT('recovery', result['token']);
+      await _secureStorage.write(key: 'auth_token', value: result['token']);
+
     }
 
   }
@@ -76,17 +78,16 @@ class _RegistrationStep3PageState extends State<RegistrationStep3Page> {
       AlertService.ShowAlert(context, "Por favor ingrese una cédula válida.");
       return;
     }
-    String? token = await StorageJob.instance.getJWT('recovery');
-    if (token == null) {
-      throw Exception('No JWT token found');
-    }
-    print(token);
+    // String? token = await StorageJob.instance.getJWT('recovery');
+    // if (token == null) {
+    //   throw Exception('No JWT token found');
+    // }
+    // print(token);
 
     try {
       final result = await _apiService.ejecutar(
         funcion: "MPPD_CCedulaSaime",
-        parametros: '${cedula}',
-        token: token,
+        parametros: '${cedula}'
       );
 
       if (result.containsKey('msj') && result['msj'] != null) {
