@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:sandra_contab_erp/core/models/floating_bar.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'package:sandra_contab_erp/core/theme/app_acciones.dart';
 import 'package:go_router/go_router.dart';
@@ -9,51 +11,62 @@ class SalesPage extends StatefulWidget {
   State<SalesPage> createState() => _SalesPage();
 }
 
-class _SalesPage extends State<SalesPage> {
-
+class _SalesPage extends State<SalesPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   final List<ActionItem> misAcciones = [
     ActionItem(
-      icon: Icons.receipt_long,
-      label: 'Facturas de compras',
+      icon: PhosphorIcons.files(),
+      label: 'Facturas: Compra / Venta',
       detail: 'Registro de facturas emitidas por proveedores, retención de IVA y control de créditos fiscales.',
-      color: AppColors.vividNavy,
+      color: AppColors.purpleSoftmax,
       onTap: (context) => context.push('/ccompras'),
     ),
     ActionItem(
-      icon: Icons.point_of_sale,
-      label: 'Facturas de ventas',
-      detail: 'Registro de facturas emitidas a clientes, cálculo de IVA y retenciones aplicadas.',
-      color: AppColors.vividNavy,
-      onTap: (context) => context.push('/cventas'),
-    ),
-    ActionItem(
-      icon: Icons.menu_book,
+      icon: PhosphorIcons.bookOpen(),
       label: 'Libro de Compras',
       detail: 'Generación automática del libro obligatorio ante SENIAT con todas las facturas de compras.',
-      color: AppColors.vividNavy,
+      color: AppColors.purpleSoftmax,
       onTap: (context) => context.push('/clibrocompras'),
     ),
     ActionItem(
-      icon: Icons.menu_book_outlined,
+      icon: PhosphorIcons.bookOpenText(),
       label: 'Libro de Ventas',
       detail: 'Generación automática del libro obligatorio ante SENIAT con todas las facturas de ventas.',
-      color: AppColors.vividNavy,
+      color: AppColors.purpleSoftmax,
       onTap: (context) => context.push('/clibroventas'),
     ),
-    ActionItem(
-      icon: Icons.inventory_2,
-      label: 'Gestión de inventarios',
-      detail: 'Control de existencias, kardex valorizado y ajustes de inventario (opcional según necesidad).',
-      color: AppColors.vividNavy,
-      onTap: (context) => context.push('/cinventarios'),
-    ),
+
   ];
+
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+    // Inicia la animación al cargar la página
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         foregroundColor: AppColors.vividNavy,
         backgroundColor: AppColors.softGrey,
@@ -62,12 +75,10 @@ class _SalesPage extends State<SalesPage> {
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: Icon(PhosphorIcons.house()),
               color: AppColors.vividNavy,
               padding: EdgeInsets.zero,
-              // quita padding extra
               constraints: const BoxConstraints(),
-              // quita tamaño mínimo
               onPressed: () => context.go('/home'),
             ),
             const Text('Compras y ventas'),
@@ -75,29 +86,25 @@ class _SalesPage extends State<SalesPage> {
         ),
         actions: <Widget>[
 
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Reportes',
-                icon: const Icon(Icons.bar_chart_outlined),
-                color: AppColors.vividNavy,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Navegando a: Reportes clientes')),
-                  );
-                },
-              ),
 
-            ],
-          ),
         ],
       ),
       backgroundColor: AppColors.softGrey,
-
-      body: SingleChildScrollView(
-        child: AccionesContablesCard(items: misAcciones),
+      body: FadeTransition(
+        opacity: _animation,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 150.0, left: 8, right: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AccionesContablesCard(items: misAcciones),
+              ],
+            ),
+          ),
+        ),
       ),
+      bottomNavigationBar: const FloatingNavBar(),
     );
   }
 }

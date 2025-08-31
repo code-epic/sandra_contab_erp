@@ -57,14 +57,26 @@ class _ClientePage extends State<ClientePage> {
       appBar: AppBar(
         foregroundColor: AppColors.vividNavy,
         backgroundColor: AppColors.softGrey,
+        automaticallyImplyLeading: false,
         titleSpacing: 0,
-        title: const Text('Plan de Cuentas'),
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(PhosphorIcons.house()),
+              color: AppColors.vividNavy,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () => context.go('/home'),
+            ),
+            const Text('Clientes'),
+          ],
+        ),
         actions: <Widget>[
+
 
         ],
       ),
       backgroundColor: AppColors.softGrey,
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 150.0, left: 8, right: 8),
