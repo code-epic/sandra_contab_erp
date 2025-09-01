@@ -37,6 +37,9 @@ class Empresa {
   final DateTime? fechaCreacion;
   @JsonKey(name: 'ultima_actualizacion')
   final DateTime? ultimaActualizacion;
+  @JsonKey(name: 'logo_url')
+  final String? logoUrl;
+
 
   Empresa({
     this.id,
@@ -55,6 +58,7 @@ class Empresa {
     this.perfilVector,
     this.fechaCreacion,
     this.ultimaActualizacion,
+    this.logoUrl,
   });
 
   factory Empresa.fromJson(Map<String, dynamic> json) =>

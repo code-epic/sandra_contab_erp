@@ -33,6 +33,7 @@ Empresa _$EmpresaFromJson(Map<String, dynamic> json) => Empresa(
   ultimaActualizacion: json['ultima_actualizacion'] == null
       ? null
       : DateTime.parse(json['ultima_actualizacion'] as String),
+  logoUrl: json['logo_url'] as String?,
 );
 
 Map<String, dynamic> _$EmpresaToJson(Empresa instance) => <String, dynamic>{
@@ -52,4 +53,5 @@ Map<String, dynamic> _$EmpresaToJson(Empresa instance) => <String, dynamic>{
   'perfil_vector': instance.perfilVector,
   'fecha_creacion': instance.fechaCreacion?.toIso8601String(),
   'ultima_actualizacion': instance.ultimaActualizacion?.toIso8601String(),
+  'logo_url': instance.logoUrl,
 };

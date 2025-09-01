@@ -5,86 +5,69 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sandra_contab_erp/core/models/cuenta.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:sandra_contab_erp/core/models/api_service.dart';
+import 'package:sandra_contab_erp/core/models/empresa.dart';
+import 'package:sandra_contab_erp/core/services/vector_generator_service.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 
 
-
-class ClienteEmpresa {
-  final String id;
-  final String nombre;
-  final String rif;
-  final String descripcion;
-  final String telefono;
-  final String correo;
-  final String direccion;
-  final String? logoUrl;
-
-  ClienteEmpresa({
-    required this.id,
-    required this.nombre,
-    required this.rif,
-    required this.descripcion,
-    required this.telefono,
-    required this.correo,
-    required this.direccion,
-    this.logoUrl,
-  });
-
-  ClienteEmpresa copyWith({
-    String? nombre,
-    String? rif,
-    String? descripcion,
-    String? logoUrl,
-  }) =>
-      ClienteEmpresa(
-        id: id,
-        nombre: nombre ?? this.nombre,
-        rif: rif ?? this.rif,
-        descripcion: descripcion ?? this.descripcion,
-        logoUrl: logoUrl ?? this.logoUrl,
-        telefono: nombre ?? this.telefono,
-        correo: nombre ?? this.correo,
-        direccion: nombre ?? this.direccion,
-      );
-}
-
 class FormClienteScreen extends StatefulWidget {
-  final ClienteEmpresa? cliente;
+  final Empresa? cliente;
   const FormClienteScreen({super.key, this.cliente});
 
   @override
   State<FormClienteScreen> createState() => _FormClienteScreenState();
 }
 
-class _FormClienteScreenState extends State<FormClienteScreen> {
-  late final _nombreCtrl = TextEditingController(text: widget.cliente?.nombre);
-  late final _rifCtrl   = TextEditingController(text: widget.cliente?.rif);
-  late final _descCtrl  = TextEditingController(text: widget.cliente?.descripcion);
-  late final _teleCtrl  = TextEditingController(text: widget.cliente?.telefono);
-  late final _corrCtrl  = TextEditingController(text: widget.cliente?.correo);
-  late final _direCtrl  = TextEditingController(text: widget.cliente?.direccion);
 
-  // Nuevos
-  late final _contactoCtrl   = TextEditingController();
-  late final _emailCtrl      = TextEditingController();
+class _FormClienteScreenState extends State<FormClienteScreen> {
+  // Controladores de texto
+  late final _nombreComercialCtrl = TextEditingController(text: widget.cliente?.nombreComercial);
+  late final _razonSocialCtrl     = TextEditingController(text: widget.cliente?.razonSocial);
+  late final _rifCtrl             = TextEditingController(text: widget.cliente?.rif);
+  late final _actividadEconCtrl   = TextEditingController(text: widget.cliente?.actividadEconomica);
+  late final _telefonoCtrl        = TextEditingController(text: widget.cliente?.telefono);
+  late final _correoCtrl          = TextEditingController(text: widget.cliente?.correoElectronico);
+  late final _direccionCtrl       = TextEditingController(text: widget.cliente?.direccionFiscal);
+  late final _rubroCtrl           = TextEditingController();
+
+
 
   File? _logoFile;
   final List<File> _docsFiles = [];
+  final List<String> _rubros = [];
 
   final _picker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
 
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar documentos digitales existentes si se está editando
+    if (widget.cliente?.documentosDigitales != null) {
+      _docsFiles.addAll(
+        widget.cliente!.documentosDigitales.map((path) => File(path)).toList(),
+      );
+    }
+    // Cargar rubros económicos existentes
+    if (widget.cliente?.rubroEconomico != null) {
+      _rubros.addAll(widget.cliente!.rubroEconomico);
+    }
+  }
+
   @override
   void dispose() {
-    _nombreCtrl.dispose();
+    _nombreComercialCtrl.dispose();
+    _razonSocialCtrl.dispose();
     _rifCtrl.dispose();
-    _descCtrl.dispose();
-    _teleCtrl.dispose();
-    _corrCtrl.dispose();
-    _direCtrl.dispose();
-    _contactoCtrl.dispose();
-    _emailCtrl.dispose();
+    _actividadEconCtrl.dispose();
+    _telefonoCtrl.dispose();
+    _correoCtrl.dispose();
+    _direccionCtrl.dispose();
+    _rubroCtrl.dispose();
     super.dispose();
   }
 
@@ -100,188 +83,406 @@ class _FormClienteScreenState extends State<FormClienteScreen> {
     }
   }
 
-  void _removeDoc(int idx) => setState(() => _docsFiles.removeAt(idx));
-
-  void _guardar() {
-    if (_formKey.currentState!.validate()) {
-      final nuevo = ClienteEmpresa(
-        id: widget.cliente?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        nombre: _nombreCtrl.text,
-        rif: _rifCtrl.text,
-        descripcion: _descCtrl.text,
-        telefono: _teleCtrl.text,
-        correo: _corrCtrl.text,
-        direccion: _direCtrl.text,
-        // Aquí puedes guardar paths o URLs si subes a servidor
-      );
-      Navigator.of(context).pop(nuevo);
+  void _addRubro() {
+    final text = _rubroCtrl.text.trim();
+    if (text.isNotEmpty && !_rubros.contains(text)) {
+      setState(() {
+        _rubros.add(text);
+        _rubroCtrl.clear();
+      });
     }
   }
+
+  void _removeRubro(String rubro) {
+    setState(() => _rubros.remove(rubro));
+  }
+
+  void _removeDoc(int idx) => setState(() => _docsFiles.removeAt(idx));
+
+  void _guardar() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final _vectorGeneratorService = VectorGeneratorService();
+
+        // 1. Crear la cadena de texto vectorizable directamente de los controladores
+        final textoVectorizable = '${_nombreComercialCtrl.text} ${_razonSocialCtrl.text} ${_rifCtrl.text} ${_actividadEconCtrl.text} ${_rubros.join(' ')}';
+
+        // 2. Generar el vector a partir de la cadena de texto
+        final perfilVector = await _vectorGeneratorService.generateVector(textoVectorizable);
+
+        // 3. Crear la única y definitiva instancia de Empresa con el vector ya generado
+        final _empresa = Empresa(
+          id: widget.cliente?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          nombreComercial: _nombreComercialCtrl.text,
+          razonSocial: _razonSocialCtrl.text,
+          rif: _rifCtrl.text,
+          actividadEconomica: _actividadEconCtrl.text,
+          telefono: _telefonoCtrl.text,
+          correoElectronico: _correoCtrl.text,
+          direccionFiscal: _direccionCtrl.text,
+          rubroEconomico: _rubros,
+          tipoSociedad: null,
+          estatusSeniat: null,
+          contadorId: null,
+          documentosDigitales: _docsFiles.map((f) => f.path).toList(),
+          perfilVector: perfilVector, // Se pasa el vector aquí
+          fechaCreacion: DateTime.now(),
+          ultimaActualizacion: DateTime.now(),
+        );
+
+        print(_empresa.toJson());
+
+        final result = await _apiService.ejecutar(funcion: 'CTAB_IEmpresa', valores: _empresa.toJson());
+
+        if (result.containsKey('msj') && result['msj'] != null) {
+
+
+        } else if (result.containsKey('Cuerpo')) {
+          print(result['Cuerpo']);
+        }
+        print(result);
+        Navigator.of(context).pop(_empresa);
+      } catch (e) {
+        print('Error al cargar el modelo TFLite: $e');
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
-        foregroundColor: AppColors.softGrey,
-        backgroundColor: AppColors.vividNavy,
+        foregroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.softGrey,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back),
-              color: AppColors.paleBlue,
-              padding: EdgeInsets.zero,   // quita padding extra
-              constraints: const BoxConstraints(), // quita tamaño mínimo
+              color: AppColors.vividNavy,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(PhosphorIcons.arrowLeft()),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            Text(widget.cliente == null ? 'Nueva empresa' : 'Editar empresa')
+            Text(
+              widget.cliente == null ? 'Nueva Empresa' : 'Editar Empresa',
+            )
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.save), onPressed: _guardar),
+          IconButton(
+            icon: Icon(PhosphorIcons.floppyDisk(), color: AppColors.vividNavy),
+            onPressed: _guardar,
+          ),
         ],
       ),
       backgroundColor: AppColors.softGrey,
-      body:Form(
+      body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           children: [
-            // Logo + RIF & Nombre lado a lado
-            const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Logo rectangular (izquierda)
-                GestureDetector(
-                  onTap: _pickLogo,
-                  child: Container(
-                    width: 100,
-                    height: 100, // altura total de los dos TextField
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.15),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                      image: _logoFile != null
-                          ? DecorationImage(
-                        image: FileImage(_logoFile!),
-                        fit: BoxFit.cover,
-                      )
-                          : null,
-                    ),
-                    child: _logoFile == null
-                        ? const Icon(Icons.add_a_photo, size: 40, color: Colors.grey)
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                // Columna con RIF y Nombre (derecha)
-                Expanded(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _rifCtrl,
-                        decoration: const InputDecoration(labelText: 'RIF (J-XXXXXXXX-X)'),
-                        validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: _nombreCtrl,
-                        decoration: const InputDecoration(labelText: 'Nombre / Razón Social'),
-                        validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-
-            const SizedBox(height: 6),
-            // DIRECCION
-            TextFormField(
-              controller: _direCtrl,
-              decoration: const InputDecoration(labelText: 'Dirección de la empresa'),
-              validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
-            ),
-            const SizedBox(height: 6),
-            // DESCRIPCION
-            TextFormField(
-              controller: _descCtrl,
-              decoration: const InputDecoration(labelText: 'Descripción o rubro de la empresa'),
-              validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
-            ),
-            const SizedBox(height: 10),
-            // Documentos constitutivos
-            const Text('Documentos constitutivos', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.attach_file),
-              label: const Text('Adjuntar archivos'),
-              onPressed: _pickDocs,
-            ),
-            if (_docsFiles.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(_docsFiles.length, (i) {
-                  return Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          image: DecorationImage(
-                            image: _docsFiles[i].path.endsWith('.pdf')
-                                ? const AssetImage('assets/pdf_placeholder.png') // placeholder
-                                : FileImage(_docsFiles[i]) as ImageProvider,
-                            fit: BoxFit.cover,
+            // Sección de Información Básica (Nombre, RIF)
+            Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Información Principal', style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textVividNavy.withOpacity(0.9),
+                    ),),
+                    const SizedBox(height: 16),
+                    // Logo y campos de texto lado a lado
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLogoPicker(),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _buildTextField(_nombreComercialCtrl, 'Nombre Comercial', isRequired: true),
+                              const SizedBox(height: 12),
+                              _buildTextField(_rifCtrl, 'RIF (J-XXXXXXXX-X)', isRequired: true),
+                            ],
                           ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () => _removeDoc(i),
-                        child: const Icon(Icons.close, size: 20, color: Colors.red),
-                      ),
-                    ],
-                  );
-                }),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildTextField(_razonSocialCtrl, 'Razón Social'),
+                    const SizedBox(height: 12),
+                    _buildTextField(_actividadEconCtrl, 'Actividad Económica', isRequired: true),
+                  ],
+                ),
               ),
-            ],
-
-            const SizedBox(height: 20),
-
-            // Datos de contacto
-            TextFormField(
-              controller: _contactoCtrl,
-              decoration: const InputDecoration(labelText: 'Responsable / Contacto'),
-              validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _emailCtrl,
-              decoration: const InputDecoration(labelText: 'Correo electrónico del responsable'),
-              keyboardType: TextInputType.emailAddress,
-              validator: (v) =>
-              v!.isEmpty ? 'Campo obligatorio' : (!v.contains('@') ? 'Correo inválido' : null),
+            const SizedBox(height: 5),
+            // Sección de Contacto
+            Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Datos de Contacto', style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textVividNavy.withOpacity(0.9),
+                    ),),
+                    const SizedBox(height: 16),
+                    _buildTextField(_telefonoCtrl, 'Teléfono'),
+                    const SizedBox(height: 12),
+                    _buildTextField(_correoCtrl, 'Correo Electrónico', keyboardType: TextInputType.emailAddress),
+                    const SizedBox(height: 12),
+                    _buildTextField(_direccionCtrl, 'Dirección Fiscal', maxLines: 2),
+                  ],
+                ),
+              ),
             ),
-
-
-
+            const SizedBox(height: 5),
+            // Sección de Rubros Económicos
+            Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Rubros Económicos', style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textVividNavy.withOpacity(0.9),
+                    ),),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(_rubroCtrl, 'Agregar rubro'),
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          icon: Icon(PhosphorIcons.plusCircle(), color: AppColors.purpleSoftmax),
+                          onPressed: _addRubro,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _rubros.map((rubro) {
+                        return Chip(
+                          label: Text(rubro),
+                          backgroundColor: AppColors.greenSoft.withOpacity(0.5),
+                          deleteIcon: Icon(PhosphorIcons.xCircle(), size: 18),
+                          onDeleted: () => _removeRubro(rubro),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            // Sección de Documentos Digitales
+            Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Documentos Digitales', style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textVividNavy.withOpacity(0.9),
+                    ),),
+                    const SizedBox(height: 16),
+                    // Nuevo selector de documentos
+                    DocumentSelector(
+                      files: _docsFiles,
+                      onPickFiles: _pickDocs,
+                      onRemoveFile: _removeDoc,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
 
+  Widget _buildLogoPicker() {
+    return GestureDetector(
+      onTap: _pickLogo,
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: AppColors.purpleSoft,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.purpleSoftmax.withOpacity(0.5), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          image: _logoFile != null
+              ? DecorationImage(
+            image: FileImage(_logoFile!),
+            fit: BoxFit.cover,
+          )
+              : null,
+        ),
+        child: _logoFile == null
+            ? Icon(PhosphorIcons.camera(), size: 40, color: AppColors.purpleSoftmax)
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {bool isRequired = false, int? maxLines, TextInputType? keyboardType}) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines ?? 1,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: AppColors.textVividNavy),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: AppColors.textVividNavy.withOpacity(0.6)),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.textVividNavy.withOpacity(0.1), width: 1.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.purpleSoftmax, width: 2.0),
+        ),
+      ),
+      validator: (v) => isRequired && (v == null || v.isEmpty) ? 'Campo obligatorio' : null,
+    );
+  }
+}
+
+class DocumentSelector extends StatelessWidget {
+  final List<File> files;
+  final VoidCallback onPickFiles;
+  final Function(int) onRemoveFile;
+
+  const DocumentSelector({
+    super.key,
+    required this.files,
+    required this.onPickFiles,
+    required this.onRemoveFile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          onPressed: onPickFiles,
+          icon: Icon(PhosphorIcons.uploadSimple()),
+          label: const Text('Adjuntar documentos'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textVividNavy,
+            side: BorderSide(color: AppColors.textVividNavy.withOpacity(0.2)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+        if (files.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 150, // Altura fija para la lista de documentos
+            child: ListView.builder(
+              itemCount: files.length,
+              itemBuilder: (context, index) {
+                final file = files[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: DocumentTile(
+                    file: file,
+                    onRemove: () => onRemoveFile(index),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class DocumentTile extends StatelessWidget {
+  final File file;
+  final VoidCallback onRemove;
+
+  const DocumentTile({
+    super.key,
+    required this.file,
+    required this.onRemove,
+  });
+
+  IconData _getIconForFile(String filePath) {
+    if (filePath.endsWith('.pdf')) return PhosphorIcons.filePdf();
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.jpeg')) return PhosphorIcons.fileImage();
+    if (filePath.endsWith('.xlsx') || filePath.endsWith('.xls')) return PhosphorIcons.fileXls();
+    if (filePath.endsWith('.doc') || filePath.endsWith('.docx')) return PhosphorIcons.fileDoc();
+    return PhosphorIcons.file();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: AppColors.softGrey.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppColors.textVividNavy.withOpacity(0.1), width: 1),
+      ),
+      child: ListTile(
+        leading: Icon(_getIconForFile(file.path), color: AppColors.purpleSoftmax),
+        title: Text(
+          file.path.split('/').last,
+          style: TextStyle(fontSize: 14, color: AppColors.textVividNavy),
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: IconButton(
+          icon: Icon(PhosphorIcons.xCircle(), color: AppColors.redSoftmax),
+          onPressed: onRemove,
+        ),
+      ),
+    );
   }
 }

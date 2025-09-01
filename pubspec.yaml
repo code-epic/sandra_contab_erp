@@ -102,6 +102,7 @@ flutter:
       - assets/code-epic.png
       - assets/sandra.png
       - assets/job.png
+      - assets/job.contab.png
       - assets/svg/calculator.svg
       - assets/svg/invoice.svg
       - assets/svg/payroll.svg

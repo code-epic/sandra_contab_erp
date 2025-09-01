@@ -22,19 +22,20 @@ class _ContabPage extends State<ContabPage> {
       onTap: (context) => context.push('/cplan'),
     ),
     ActionItem(
-      icon:  PhosphorIcons.files(),
-      label: 'Facturas',
-      detail: 'Documento mercantil que refleja la información de una operación de compraventa y respaldo fiscal...',
-      color: AppColors.purpleSoftmax,
-      onTap: (context) => context.push('/cfacturas'),
-    ),
-    ActionItem(
       icon:  PhosphorIcons.strategy(),
       label: 'Comprobantes',
       detail: 'Evidencia contable de cada asiento: ingresos, egresos, diarios, ajustes y traslados...',
       color: AppColors.purpleSoftmax,
       onTap: (context) => context.push('/ccomprobante'),
     ),
+    ActionItem(
+      icon:  PhosphorIcons.scales(),
+      label: 'Balances',
+      detail: 'Estado financiero que muestra la situación económica y patrimonial ...',
+      color: AppColors.purpleSoftmax,
+      onTap: (context) => context.push('/cfacturas'),
+    ),
+
     ActionItem(
       icon: PhosphorIcons.arrowsInLineHorizontal(),
       label: 'Cierre contable',
@@ -45,7 +46,7 @@ class _ContabPage extends State<ContabPage> {
     ActionItem(
       icon: PhosphorIcons.flowArrow(),
       label: 'Dinámica contable',
-      detail: 'Análisis en tiempo real de indicadores financieros, flujo de caja y proyecciones...',
+      detail: 'Establecer las acciones para las transacciones o operaciones contables...',
       color: AppColors.purpleSoftmax,
       onTap:(context) => context.push('/cdinamica'),
     ),
@@ -75,15 +76,6 @@ class _ContabPage extends State<ContabPage> {
 
           Row(
             children: [
-              IconButton(
-                tooltip: 'Reportes Financieros',
-                icon: Icon(PhosphorIcons.scales()),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Navegando a: Reportes financieros')),
-                  );
-                },
-              ),
               IconButton(
                 tooltip: 'Configuración',
                 icon: Icon(PhosphorIcons.gear()),

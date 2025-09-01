@@ -37,10 +37,12 @@ class UploadService {
     () async {
       final client = createInsecureHttpClient();
       try {
+        final sToken = await _secureStorage.read(key: 'auth_token');
+
         final uri = Uri.parse("${baseUrl}v1/api/subirarchivos");
         final request = http.MultipartRequest("POST", uri);
-        final token = await _secureStorage.read(key: 'auth_user');
-        request.headers["Authorization"] = "Bearer $token";
+
+        request.headers["Authorization"] = "Bearer $sToken";
 
         // Campos extras
         request.fields.addAll(fields);
