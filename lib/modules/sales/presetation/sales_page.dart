@@ -21,7 +21,7 @@ class _SalesPage extends State<SalesPage> with SingleTickerProviderStateMixin {
       label: 'Facturas: Compra / Venta',
       detail: 'Registro de facturas emitidas por proveedores, retención de IVA y control de créditos fiscales.',
       color: AppColors.purpleSoftmax,
-      onTap: (context) => context.push('/ccompras'),
+      onTap: (context) => context.push('/factura'),
     ),
     ActionItem(
       icon: PhosphorIcons.bookOpen(),

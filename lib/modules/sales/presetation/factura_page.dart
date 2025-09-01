@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:sandra_contab_erp/core/theme/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:sandra_contab_erp/providers/scan_provider.dart';
@@ -7,15 +9,14 @@ import 'dart:io';
 import 'package:sandra_contab_erp/screen/preview_edit_screen.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 
-class CinventariosPage extends StatefulWidget {
-  const CinventariosPage({super.key});
+class FacturaPage extends StatefulWidget {
+  const FacturaPage({super.key});
   @override
-  State<CinventariosPage> createState() => _CinventariosPage();
+  State<FacturaPage> createState() => _FacturaPage();
 }
 
+class _FacturaPage extends State<FacturaPage> {
 
-
-class _CinventariosPage extends State<CinventariosPage> {
   final PageController _pageController = PageController(viewportFraction: 0.85);
   String _currentTitle = 'Original';
 
@@ -132,21 +133,22 @@ class _CinventariosPage extends State<CinventariosPage> {
     final scanProvider = Provider.of<ScanProvider>(context);
 
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
-        foregroundColor: AppColors.softGrey,
-        backgroundColor: AppColors.vividNavy,
+        foregroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.softGrey,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back),
-              color: AppColors.paleBlue,
+              icon: Icon(PhosphorIcons.arrowLeft()),
+              color: AppColors.vividNavy,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go('/sales'),
             ),
-            const Text('Escanear de facturas'),
+            const Text('Escanear Facturas'),
           ],
         ),
         actions: <Widget>[
@@ -155,7 +157,7 @@ class _CinventariosPage extends State<CinventariosPage> {
               // Botón para subir archivos
               IconButton(
                 tooltip: 'Subir archivos',
-                icon: const Icon(Icons.upload_file),
+                icon: Icon(PhosphorIcons.upload(), size: 22,),
                 onPressed: scanProvider.scannedDocuments.isNotEmpty
                     ? () {
                   scanProvider.uploadDocuments();
@@ -372,10 +374,12 @@ class _CinventariosPage extends State<CinventariosPage> {
             },
           );
         },
-        backgroundColor: AppColors.vividNavy,
+        backgroundColor: AppColors.purpleSoftmax,
+        shape: CircleBorder(),
         tooltip: 'Opciones de Escaneo',
-        child: const Icon(Icons.add_a_photo, color: AppColors.paleBlue),
+        child: const Icon(Icons.add_a_photo, color: Colors.white),
       ),
     );
   }
+
 }

@@ -8,7 +8,7 @@ import 'package:sandra_contab_erp/modules/cliente/clscore_page.dart';
 import 'package:sandra_contab_erp/modules/contab/comprobante_page.dart';
 import 'package:sandra_contab_erp/modules/contab/configuracion_page.dart';
 import 'package:sandra_contab_erp/modules/contab/contab_page.dart';
-import 'package:sandra_contab_erp/modules/contab/factura_page.dart';
+import 'package:sandra_contab_erp/modules/sales/presetation/factura_page.dart';
 import 'package:sandra_contab_erp/modules/contab/plan_page.dart';
 import 'package:sandra_contab_erp/modules/contab/reportes_page.dart';
 import 'package:sandra_contab_erp/modules/home/explorador_page.dart';
@@ -19,11 +19,8 @@ import 'package:sandra_contab_erp/modules/login/presentation/registration_step_2
 
 import 'package:sandra_contab_erp/modules/login/presentation/onboarding_page.dart';
 import 'package:sandra_contab_erp/modules/login/presentation/registration_step_3.dart';
-import 'package:sandra_contab_erp/modules/sales/presetation/ccompras_page.dart';
-import 'package:sandra_contab_erp/modules/sales/presetation/cinventarios_page.dart';
 import 'package:sandra_contab_erp/modules/sales/presetation/clibrocompras_page.dart';
 import 'package:sandra_contab_erp/modules/sales/presetation/clibroventas_page.dart';
-import 'package:sandra_contab_erp/modules/sales/presetation/cventas_page.dart';
 import 'package:sandra_contab_erp/modules/sales/presetation/sales_page.dart';
 import 'package:sandra_contab_erp/shared/widgets/app_shell.dart';
 
@@ -60,11 +57,10 @@ final List<RouteBase> appRoutes = [
         GoRoute(path: '/home', builder: (_, __) => const HomePage()),
         GoRoute(path: '/explorador', builder: (_, __) => const ExploradorPage()),
         GoRoute(path: '/accounting', builder: (_, __) => const AccountingPage()),
-        GoRoute(path: '/factura', builder: (_, __) => const FacturaPage()),
+
         GoRoute(path: '/contab', builder: (_, __) => const ContabPage()),
 
         GoRoute(path: '/cplan', builder: (_, __) => const PlanPage()),
-        GoRoute(path: '/cfactura', builder: (_, __) => const FacturaPage()),
         GoRoute(path: '/ccomprobante', builder: (_, __) => const ComprobantePage()),
         GoRoute(path: '/creportes', builder: (_, __) => const ReportesPage()),
         GoRoute(path: '/cdinamica', builder: (_, __) => const DinamicaPage()),
@@ -77,11 +73,9 @@ final List<RouteBase> appRoutes = [
         GoRoute(path: '/clscore', builder: (_, __) => const ClscorePage()),
 
         GoRoute(path: '/sales', builder: (_, __) => const SalesPage()),
-        GoRoute(path: '/ccompras', builder: (_, __) => const CcomprasPage()),
-        GoRoute(path: '/cventas', builder: (_, __) => const CventasPage()),
+        GoRoute(path: '/factura', builder: (_, __) => const FacturaPage()),
         GoRoute(path: '/clibroventas', builder: (_, __) => const ClibroventasPage()),
         GoRoute(path: '/clibrocompras', builder: (_, __) => const ClibrocomprasPage()),
-        GoRoute(path: '/cinventarios', builder: (_, __) => const CinventariosPage()),
       ],
     ),
   ];
